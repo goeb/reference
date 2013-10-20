@@ -1,0 +1,79 @@
+
+0. char*
+
+The 2 following statements are equivalent:
+char s[21] = {'H', 'e', 'l', 'l', 'o', '\0'};
+char s[21] = "Hello";
+
+
+1. null terminated char*-strings
+Most operations on char*-strings assume that they are ended by a character zero:
+- strlen
+- strcpy
+- strncpy
+- sprintf
+- snprintf
+- strcat
+- strncat
+- strdup
+- etc.
+
+Using memcpy for a string is error prone.
+To add the terminating zero, do this:
+
+char myString[MAX_LENGTH+1];
+myString[MAX_LENGTH] = 0;
+or
+myString[MAX_LENGTH] = '\0';
+
+Don't do that:
+myString[strlen(myString)] = 0; // wrong! because strlen needs the zero!
+strcat(myString, "0"); // wrong! because strcat needs the zero!
+
+
+2. char*-string operations
+
+char s[100] = "123";
+
+strcpy(s, "1234"); // 5 characters copied, including zero
+strncpy(s, "1234", 4); // wrong! 4 characters copied, missing zero
+strncpy(s, "1234", 5); // 5 characters copied, including zero
+strncpy(s, "1234", 10); // 10 characters copied, including 6 zeros
+
+strcat(s, "-4");        // { '1', '2', '3', '-', '4', '\0' }
+strncat(s, "-4", 1);    // { '1', '2', '3', '-', '\0' }
+With strcat and strncat the resulting string is always null terminated.
+
+sprintf(s, "%02X", 255); // { 'F', 'F', '\0' }
+sprintf(s, "%02X", 1048575); // { 'F', 'F', 'F', 'F', 'F', '\0' }
+                             // (not limited to 2 characters!)
+snprintf(s, 4, "%02X", 1048575); // { 'F', 'F', 'F', '\0' }
+                                 // 4 characters copied
+snprintf() writes at most N bytes (including the trailing null byte ('\0')).
+
+
+3. sizeof
+char name[100];
+sizeof(name); // returns 100
+
+char *city;
+city = (char*)malloc(100);
+sizeof(city); // returns the size of an integer. 4 on a 32-bit CPU.
+
+
+4. Other string types
+4.1 std::string (STL library)
+
+std::string s;
+s = "abc";      // { 'a', 'b', 'c', '\0' } size = 3
+s += "-12";     // { 'a', 'b', 'c', '-', '1', '2', '\0' } size = 7
+s += '\0';      // { 'a', 'b', 'c', '-', '1', '2', '\0', '\0' } size = 8
+
+s.c_str(); // returns a null-terminated char*, suitable for use with strcpy, strlen, etc.
+s.size(); // returns the size of the string
+
+4.2 CString (MFC librairy)
+
+CString s;
+s.GetBuffer(0); // returns a null-terminated char*, suitable for use with strcpy, etc.
+

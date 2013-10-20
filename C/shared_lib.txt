@@ -1,0 +1,14 @@
+How to make a shared library ? (abstract)
+-----------------------------------------
+see ../Program-Library-HOWTO for more details
+
+gcc -fPIC -c -o test.o test.c
+gcc -shared -Wl,-soname,libtest.so.1 -o libtest.so.1.0.1 test.o
+
+beeing root:
+cp libtest.so.1.0.1 /usr/lib
+/sbin/ldconfig -n /usr/lib
+ln -s libtest.so.1 /usr/lib/libtest.so
+
+and to link another program with this library:
+gcc -o t t.c -ltest

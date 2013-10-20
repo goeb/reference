@@ -1,0 +1,608 @@
+
+1/ Du bon usage des prototoypes et des .h
+-----------------------------------------
+
+- TOUJOURS utiliser le C ANSI (meme si de mon temps, hein, on avait pas des
+compilateurs ansi, aujourd'hui tout le monde en a un)
+"void eeic_cleanup ()" est a proscrire
+==> void eeic_cleanup(void)
+"eeic_cleanup(void)" est a proscrire
+=> int eeic_cleanup(void)
+- Il faut TOUJOURS avoir des prototypes, ca evite des erreurs cons, ce
+serait dommage de s'en priver. 
+- De maniere generale, dans toto.c les fonctions definies qui ne sont
+pas "static", se retrouvent dans toto.h
+- ex mauvais : grep eeic_read_signal_name *
+eeic_sdl.c:int eeic_read_signal_name (char *signal_string, char *signal_name)
+Ici eeic_read_signal_name n'apparait dans aucun .h et n'est pas static
+De 2 choses l'une : ou eeic_read_signal_name n'est utilise que dans
+eeic_sdl.c, et il faut la definir en static, ou elle est utilisee ailleurs
+et il faut avoir son prototype dans un .h
+- Idem pour les variables globales, qui sont soit statiques (visible uniquement
+dans le fichier) soient "exportee" et definie dans le .h en "extern".
+- Le mot clef "extern" qu'on trouve dans certains sources devant
+le prototype d'une fonction (ex. "extern int toto(void);") 
+ne sert STRICTEMENT a rien, si ce n'est a montrer que l'auteur n'a pas
+compris ce qu'etait un prototype.
+- de maniere generale, le .h doit exporter le strict minimum.
+Il est tout a fait possible par ex. d'avoir une structure
+"struct st_toto { int a; int b;};" definie dans toto.c
+et de definir dans toto.h uniquement "typedef struct st_toto *toto_t;"
+ca donne l'assurance que l'utilisateur de toto.c n'ira pas changer
+les champs a la main.
+- Le .c qui definit les variables/fonctions decrites dans un .h
+DOIT include ce .h, cela garantit que les 2 sont coherents.
+(typ :
+	toto.h: int toto(int a);
+	toto.c: 
+		#include "toto.h"
+		...
+		int toto(int a)
+		{
+			..
+		}
+Un prototype, ou une variable externe dans un fichier C en non dans un .H
+n'apporte pas cette garantie, et donc sont a PROSCRIRE
+ex :
+interpre.c :
+	extern int EiC_TIMER;
+	void showcode(InsT_t * inst,int i);
+rien ne garanti que quelqu'un n'a pas fait evolue le .c ou sont definis 
+EiC_TIMER et showcode. Si les types ont changes, il n'y aura pas de warning
+a la compilation, mais ca plantera !!!
+
+Enfin, sur certaines architectures (en general pas de pb sous unix
+ou sous tout autre OS recent)  on se mefiera des noms externes, qui
+sont limites par le linker. Ils ne sont pas necessairement case sensitive
+et souvent tronques (ex. sous VM/CMS -de memoire- les noms externes
+sont case insensitve et limites a 6 lettres (les 3 1eres et les 3
+dernieres), du coup des fonctions CreateTotoValue() et creer_une_lue
+correspondent toutes les 2 aux symboles CRELUE, !!
+
+
+2/ l'astuce du jour
+-------------------
+   il peut etre astucieux, c'est ce que je fais, mais c'est pas du tout
+   un usage generalise, plutot que d'ecrire
+	if (toto == 43) ...
+   ecrire
+	=> if (43 == toto)
+   c'est un peu moins lisible (mais on s'y fais tres bien) mais comme la
+   constante ne peut pas etre un
+   lvalue, si on ecrit "=" au lieu de "==", ca se voit a la compilation.
+
+3/ les erreurs classiques :
+---------------------------
+
+   3.1/
+	a = i++ * i++;	
+	a = i * ++i;
+	a = ++i + i;
+   ou 
+	a=function(i++,i,...)
+   le resultat n'est  -je crois- pas deterministe, et de toute facon pas
+   lisible.
+
+   3.2/ faire attention, notemment avec le ++, aux operations faites
+   dans les printf()
+	ex :
+		while (i>0) {
+			....
+			printf("i = %d\n", i--);
+		}
+	typiquement la ligne du printf sera enlevee dans quelques semaines
+	des quelqu'un en aura mare d'avoir des millions de msg de
+	de debug. et le code marchera plus.
+
+   3.3/ if (cond)
+		action;
+	sans ces accolades, est - on le sait deja mais il est bon de toujours
+        le repeter - a bannir, exclure et maudire jusqu'a la 23eme generation.
+	il y a toujours quelqu'un pour transformer ca en
+	if (cond)
+		action;
+		action2;
+	On ecrirera donc TOUJOURS
+		   => if (cond) action;
+		ou => if (cond) {
+			action;
+		      }
+	C'est evidement valable pour les for(;;), les while(), etc... !
+
+ 	On evitera de meme d'avoir 2 statement par lignes :
+		action1; action2;
+	qui n'est guere lisible et plantera si on met :
+		if (cond) action1; action2;
+
+   3.4/ puisqu'on en est a des rappels de bases, il est bon de se souvenir
+	que (a || b) n'evalue b que si a est faux, de meme (a && b)
+ 	n'evalue b que si a est juste.
+	Donc enorme mefiance vis a vis de code du style
+		if ((a==b) || (i++>32)) ...
+	(i n'est incremente que si a==b).
+	C'est absolument illisible et probablement faux !
+	Par contre l'exemple suivant
+		if (ptr && (ptr->x==3)) ...
+	est tout a fait licite, classique, et lisible.
+
+   3.5/ toujours dans les bases
+	a/
+		char *ptr1;
+		int  *ptr2;
+		int x;
+		ptr1=(char *) &x;
+		ptr2=&x;
+		ptr1+=1;
+		ptr2+=1;
+		printf("%x %x %x\n", (int) &x, (int) ptr1, (int) ptr2);
+	ptr1 s'est incremente de 1 octet, ptr2 de 4 (ie sizeof(int))
+
+	a'/ on notera que dans l'arithmetiques sur les pointeurs, on a 
+		ptr+int -> ptr (dont on vient de parler)
+		ptr1-ptr2 -> int
+	ca n'a bien sur de sens que si ptr1 et ptr2 sont deux pointeurs sur
+	un meme bloc memoire.
+		
+
+	b/ a[x] est strictement equivalent *(a+x)
+	d'ailleurs "tabl[3]" et "3[tabl]" se valent... bon c'est juste
+	pour la culture, c'est pas tres utile.
+
+	c/ dans le code suivant, la declaration de rg :
+		void titi(int k)
+		{
+			char *rg[k];
+	c'est une extension gcc, absolument pas ANSI, a eviter
+
+	d/ toujours attacher la plus grande circonspection dans
+	les conversions signed / unsigned sur les int ou les char.
+	Ne pas hesiter a utiliser des unsigned si ce qu'on manipule
+	n'est pas signe.
+		int i;
+		int j;
+		char c;
+		unsigned char uc;
+		c=0x90;
+		uc=0x90;
+		i=c>>1;
+		j=uc>>1;
+	i et j ne sont pas identiques !
+
+	Se mefier aussi de
+		unsigned int i;
+		...
+		if (i<0) { ...
+	i n'est jamais inferieur a 0. (gcc donne un warning)
+
+	d/ La semantique du "static" est, bien sur, different a l'interieure
+	   d'une fonction (i.e. il ne s'agit plus d'une question de visibilite,
+	   mais de zone d'allocation fixe)
+		void toto(void)
+		{
+			static int InitDone=0;
+			if (!InitDone) {
+				InitDone=1;
+				/* do some init */
+			}
+			....
+		}
+	est une construction classique.
+	attention toutefois que lorsqu'on utilise des variables statiques
+	dans une fonction, elle devient generalement non-reentrante
+	(pb si multi-thread ou si recursivite). C'est donc souvent a eviter.
+	- on notera enfin que si, dans les annees 80, sous dos, on etait
+	oblige d'ecrire
+		if (...) {
+			static char rgBuf[8192];
+	(rgBuf en static, sinon on depasse la pile), ce n'est evidement
+	plus la peine de mettre rgBuf en static, au contraire.
+
+    3.6/ attention a l'alignement
+		char rg[4];
+		int *p;
+		p=&rg;
+	n'est evidement pas OK. (sur bcp de processeur (typ. sparc), un int
+	doit etre aligne sur 32 bits. Le code ci-dessus recevra un SIGBUS ;
+		struct s {
+			int a;
+			char c;
+			int b;
+		}
+	il n'est PAS possible de predire la taille de s (en general
+	12 octets, 9 sur un i386...)
+	a fortiori il n'est pas possible d'acceder "a la main" a une
+	structure :
+		struct s st;
+		char *p;
+		p=&st;
+		p[5]=34;
+	on ne sait PAS ou va aller le 34 (ca depend de l'architecture).
+	ca RESTE vrai si on utilise des bit fields :
+		struct s {
+			int f1:1;
+			int f2:3;
+			int f2:4;
+		}
+	struct s peut tres bien etre code sur 12 octets comme sur 1 octet 
+	suivant l'architecture et le compilateur !!. A fortiori on ne peut pas
+	utiliser ce type de strucutre pour encoder/decoder des pdu !
+	(mais on le voit parfois !)
+	
+
+   3.7/ et a l'endienness 
+		int i;
+		char *p=&i;
+		p[0]=0x11;
+		p[1]=0x22;
+		p[2]=0x33;
+		p[3]=0x34;
+		printf("%x\n", i);
+	affichera 0x11223344 sur un sparc ou un motorola (big endien),
+	et 0x44332211 sur intel (little indien).
+	Sur des architectures plus exotique, ca pourra meme etre 0x33441122....
+	les macros htonl() et ntohl()  (ntohs,htons pour les shorts)
+	(host to network et network to host) permenttent de transformer
+	un long (resp. short) en "big endien".
+	Pour la culture on notera que certains processeurs recent (DEC alpha,
+	certains powerPC), peuvent fonctionner en little ou en big endien
+	au choix.
+
+   3.8/ et a ce qu'est un "int"
+	un int correspond a la taille du mot natif. Un int fait donc
+	8 bits sur un CPU 8bit, 16 sur un cpu 16bits et 32 sur un cpu
+	32 bits.
+	En pratique on n'utilise que des 32 bits (a ma connaissance sur
+	un cpu 64 bits, l'int reste sur 32 bits sinon y  aurait trop
+	de pgme qui marcherait pas).
+	En gcc, on a le type "long long" qui vaut 64 bit (traite comme
+	natif sur une architecture 64 bits, et "a la main" sur un 32 bits).
+	C'est a priori devenu un standard de fait -> on peut l'utiliser
+	si besoin est.
+
+   3.9/ les float
+	On les utilise vraiment pas souvent, mais
+	- Evidement on ne fera pas non plus de supposition sur la facon
+	dont un float est stocke.
+	- Lors d'un appel de fonction c'est en general un double qui
+	est passe (de maniere automatique)
+	- on notera que sur les processeurs relativement recents,
+	(en i386 depuis le pentium), le calcul en float est au moins
+	aussi rapide que le calcul entier. Sauf cas particuliers (DSP)
+ 	les calculs en virgule fixe (entiers) sont inutiles
+	
+    3.10/ valeur de retour
+	- on notera que dans
+	struct s toto(void)
+	ou toto(struct s param)
+	le passage de parametre/valeur de retour se fait par copie.
+	C'est generalement tres penalisant, surtout si la structure est grosse.
+	- sur certaines architectures (sparc) les parametres ne seront pas
+	passes a la fonction de la meme maniere suivant le types (un type
+	de 32 bit sera passe directement via la fenetre de registres, pas
+	une structure) -> risques severes s'il n'y a pas de prototypes.
+	- on notera que
+		char *toto(int i)
+		{
+			char szTmp[256];
+			sprintf(szTmp, "%d", i);
+			return szTmp;
+		}
+	  ne marche pas (des que l'on est sorti de toto, szTmp n'est
+	  plus une zone memoire valide.
+	- que par contre :
+		char *toto(int i)
+		{
+			static char szTmp[256];
+			sprintf(szTmp, "%d", i);
+			return szTmp;
+		}
+	  marche. Mais dans ce cas si on fait
+		char *t1;
+		char *t2;
+		t1=toto(23);
+		t2=toto(24);
+	 	printf("%s %s\n", t1 t2);
+	  affiche evidemment "24 24" et pas "23 24"
+
+     3.11/ valeurs par defaut
+	void titi(void)
+	{
+		int i;
+		printf("%d\n", i);
+	}
+	affiche n'importe quoi, car i n'est pas initialise.
+	(i sera par contre intialise a 0 si c'est une variable globale
+	ou une variable statique. Dans le doute, et pour la visibilite,
+	on initialisera i EXPLICITEMENT si on se repose sur cette valeur
+	par defaut.
+
+     3.12/ c'est tres con...
+	...mais on voit encore des gens qui le font pas :
+	mettre en debug de chaque .h :
+		#ifndef MACHIN_HEADER
+		#define MACHIN_HEADER
+	(et un #endif en fin bien sur!). Cela protege des multiples
+	inclusions d'un .h)
+		
+
+	
+4/ Les macros
+-------------
+   On veillera a ce que la macro elle meme soit englobee dans
+   des "(" ")" ou des "{" "}", et que les parametres le soient aussi
+   ex 1 :
+	#define ADD5(_x) _x + 5
+   n'est evidement pas bon : 4*ADD5(4) renverra 21 (16+5) et pas 36
+   ex 2 :
+   	#define MULT3(_x) (_x * 3)
+   n'est pas bon non plus car : MULT3(3+1) renverra 6 et non 12
+   il faut bien sur ecrire
+	#define ADD5(_x) ((_x)+5)
+   et
+	#define MULT3(_x) ((_x)*3)
+   - c'est pas par hasard que je met un "_x" et pas "x" :
+   il arrive qu'on definisse
+   	#define MAC(x,y,z) (expression_compliquee(x,y,z))
+   et qu'ensuite on se dise - ah ben non j'ai pas besoin du x, et qu'on
+   corrige trop vite
+   	#define MAC(y,z) (expression_compliquee(x,y,z))
+   pas de chance on a une variable qui s'appelle x, ca compile tout seul,
+   et ce ne marche pas, on cherche.... par contre on a beaucoup plus
+   rarement une variable qui s'appelle _x
+   - on notera enfin que la semantique d'une macro est differente
+   de celle d'une fonction.
+	int f(int);
+	#define F(_x) (expression(_x)
+	..
+	y=f(x); /* x n'est bien sur pas modifie */
+	y=F(x); /* x peut etre modifie !! */
+   -> on mettra toujours les macros entierement en majuscule -ce qu'on
+   ne fera pas pour les fonctions.
+   on ne tolerera, et encore si on est vraiment de bonne humeur, des macros en
+   minuscules que si elles ont effectivement la semantique d'une
+   fonction. Par ex. dans stdio.h, getc(),getchar() et cie sont generalement
+   des macros. De maniere generale on evitera.
+   
+
+5/ les commentaires
+-------------------
+   5.1/ les commentaires inutiles
+	ex1:
+		if (x!=0) {
+			/* cas ou x est non-nul */
+	ex2:
+		if (x>MAX_X) x=MAX_X; /* x ne doit pas depasser MAX_X */
+	ex3:
+		x=3; /* on remet x a 3 */
+	etc..
+	ces commentaires n'apportent STRICTEMENT rien a la comprehension
+	du code.
+	-> ils sont inutiles
+	generealement le code va evoluer, et pas le commentaire!
+	ex3bis :
+		x=4; /* on rement x a 3 */
+	-> ce commentaire n'est plus inutile, il est nuisible !!
+	c'est donc a eviter !
+
+    5.2/ par contre le nom des fonctions et des variables et des types
+	 peut apporter beaucoup a la comprehension. On choisira donc des noms
+	 explicites, long le cas echeant.
+	ex :
+	static block_t *FindBlock(info_t *pInfo, char *name, int exact)
+	(il n'est pas necessaire de rajouter un commentaire disant
+	"/* trouve un block de nom 'name'*/")
+	C'est le celebre concept phare du "code auto-documente".
+
+     5.1 + 5.2/ exemple
+	Ainsi on trouve parfois des codes :
+
+		/* fonction Toto
+		 * ENTREE: nombres de machins 
+		 * SORTIE: nombre de machins crees;
+		 * - Cree des machins
+		 */
+		int Toto(int k)
+
+	ce sera avantageusement remplace par :
+
+		int CreatesSomeMachins(int NumberOfMachin)
+	
+
+    5.3/ on choisira generalement l'anglais pour les commentaires
+	 et les noms des variables/fonctions/types
+	 (de maniere generale, rester coherent avec le reste du projet)
+
+    5.5/ Les noms de fonction/variable s'ecrieront generalement :
+	static int create_management_partition(...);
+	(i.e. en minuscule, "_" entre chaque mot)
+	ou
+	static int CreateManagementPartition(...);
+ 	(i.e. en minuscule, et majuscule au debut de chaque mot)
+	(de maniere generale, rester coherent avec le reste du projet ou
+	 au moins du fichier)
+
+	
+6/ les warnings
+---------------
+    ...cachent parfois de vrais bug
+    -> on compile (sauf exception, typ. du code importe) toujours
+    en -Wall -Werror, i.e. on n'accepte aucun warning.
+
+7/ les valeurs de retours
+-------------------------
+    pour une fonction renvoyant un entier, la convention est de renvoyer 0
+    pour OK, et !=0 (typiquement -1) pour non-ok
+    Seuls les gens de chez Micro$oft, esperant ainsi sans-doute revolutionner
+    l'informatique, font le contraire.
+    pour une fonction renvoyant un pointeur evidemment c'est NULL qui indiquera
+    une erreur.
+	
+
+8/ l'optimisation
+-----------------
+    Si l'optimisation sur les compilateurs marchait a tous les coups,
+    elle ne serait pas en option (-O) !
+    Tres souvent, les niveaux d'optimisations eleves sont buggues, generalement
+    on les evitera.
+    L'utilisation du debugger (-g) et de l'optimisation est en general
+    impossible (possible avec gcc, mais le debugger est bcp plus
+    dur a suivre).
+
+9/ Les astuces de codage
+------------------------
+    ...supposees etre elegantes, optimiser le code, etc, ne servent
+    en general qu'a flatter l'ego du programmeur. Elles sont le plus souvent
+    illisible et source d'erreur quand le code evolue.
+    En general, on les evitera. Si l'on doit optimiser quelque chose,
+    on se penchera plutot sur l'algorithme (un algo en O(Log(n)) code
+    sans astuces ira toujours beaucoup plus vite qu'un algo en O(n2) 
+    codee de maniere astucieuse !!)
+    Si l'on doit mettre une astuce, on la commentera evidement !
+    Dans tous les cas, avant d'optimiser, on se posera la question "est-ce
+    utile ?". Les outils de profiling (gprof) fournissent en general
+    des elements de reponse.
+	
+10/ Les traces de debug
+-----------------------
+    il est bon, en general, de les conserver sur le code final.
+    Typiquement, on ecriera :
+	int trace;
+	#define DEBUG(_m) {if (trace) printf _m; }
+	...
+		DEBUG(("message de debug %s\", stringvalue));
+    On notera
+	- l'astuce de la double parenthese qui evite de definir
+	DEBUG1 DEBUG2 DEBUG3, etc... pour des printf avec 1,2,.. parametres
+	- qu'avec ce systeme, c'est le meme code qu'il y ait ou non
+	les traces. Pratique lorsqu'on cherche un pointeur fou.
+	- que les traces peuvent etre activees sur cible, pour peu
+	que l'on traite une option "-d" ou "-v" (autre option :
+	on peut ecrire "if (getenv("TRACE_TOTO")) trace=1;"
+
+11/ Le multi-thread
+-------------------
+    C'est bien simple : ca n'existe pas.
+    Les pretendus avantage des threads sont tres inferieurs aux emmerdes.
+    Neufs fois sur 10, ils sont la parceque l'abruti qui a ecrit le
+    code n'a pas pense a structure son code autour d'une attente
+    d'evenement (i.e. + ou - une machine a etat fini), ou parce
+    que quelqu'un lui a dit que le multi-thread c'etait trop tendance.
+    S'il doit y avoir une tache de fond autant faire un process separe.
+
+
+12/ Les options de lignes de commandes
+--------------------------------------
+    merci d'afficher l'usage de la fonction si l'est options sont
+    incorrectes ou si "-h".
+
+13/ pas de superstitions
+------------------------
+    ni de mystere. Si ca plante c'est qu'il y a un bug
+
+14/ Garder a l'esprit
+---------------------
+    ...ce que l'on fait. A savoir le + souvent de la petite serie voire des
+    machines en un exemplaire. Du coup, entre passer 15j pour optimiser
+    le code, et acheter la machine plus puissante a 10kF de plus,
+    qu'est ce qui est le plus rentable ? hein ?
+    Le temps de developpement et de maintenance est primordial
+    Ca ne dispense pas de reflechir de temps en temps !
+    (Comme disait Albert, "il faut toujours faire simple, mais jamais
+    simpliste")
+
+
+concernant la notation, petites remarques a prendre ou a laisser :
+
+
+a/ l'usage pour les "(" est de les coller a la fonction.
+	printf(
+   mais
+  	"if (", "for ("
+
+b/ return n'est pas un fonction, les parentheses pour le coup servent a rien :
+	return (new_msg);
+	=> return new_msg;
+
+c/ concernant l'indentation chacun a ses gouts, mais :
+	if (cond) {
+		...
+	} else {
+		..
+	}
+   a l'avantage d'etre a la fois concis et lisible
+   pour les switch(), l'usage le plus courant est :
+	swich (toto) {
+	case 1:
+		/* code */
+		break;
+	case 2:
+		...
+	}
+ 
+   en general, les indentatations sont faites avec des tabulations.
+   en general, un <TAB> deplace d'un multiple de 8 caracteres. C'est
+   reglable dans l'editeur, mais on ne le reglera pas ! sinon on
+   se retrouve, lorsqu'on l'edite avec des tab de 8, avec une indentation
+   tout pourri.
+   On proscriera egalement les indentations "faibles" (typ 2 caracteres)
+   tellement peu lisible : 
+	for (;;) {
+	  if (..) {
+	    ...
+	  } else {
+	    ...
+	  }
+	}
+    Si, avec des indentations de 8 caracteres, on est gene parcequ'on
+    a trop de niveaux d'indentations, c'est souvent que le code est mal
+    structure !!
+    On evitera aussi d'avoir des lignes trop longuees, peu lisibles
+    (et j'insiste : c'est compatible avec des tab de 8 !)
+
+d/ concernat NULL il est tout aussi sain et plutot plus lisble d'ecrire
+   => if (!q.first) plutot que "if (q.first == NULL)"
+   et surtout
+   => if (size) plutot que "if (size != 0)"
+    enfin, ca se discute
+
+e/ les opinions divergent la-dessus, mais on trouve parfois le type en
+   prefixe du nom des variables.
+	Ex: int *pToto; ("p" pour pointer)
+	    int **ppToto;
+   on trouve ainsi "p"=pointeur, "rg"=range=tableau, "sz" pour les chaine
+   ascii terminee par '\0', "u" pour unsigned, etc...
+   Perso j'utilise tres souvent les "p" pour les pointeurs, qui sont
+   assez pratique des qu'on a plus d'un niveau de pointeur (il suffit
+   alors de comparer le nombre de "*" et de "p" pour savoir ce que l'on
+   fait.
+   
+f/ les comentaires :
+	- x=4; /* commentaire */
+	- /*
+	   * long commentaire
+	   */
+	- on evitera si possible
+	  /*
+	   commentaire
+	   */
+	(moins lisible, et pas d'"*" si on fait un grep)
+
+g/ dans les switch, on commentera l'absence volontaire d'un break 
+   (surtont s'il y a du code)
+
+	switch (toto) {
+	case 1:
+		/* code */
+		/* FALTHRU */
+	case 2:
+		/* code */
+		break;
+	}
+  
+h/ on evitera le "couper-coller". Une procedure ou une macro seront
+   plus adaptees et pas plus longue a ecrire.
+
+i/ les parentheses n'ont jamais tues personne
+	"if ( i < 3 << 4 & 0x7F) " n'est pas particulierement lisible !
+
+
