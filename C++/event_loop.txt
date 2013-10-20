@@ -1,0 +1,84 @@
+class Event
+{
+    public:
+        Event(name);
+        std::string getName();
+}
+class Timer : public Event
+{
+    public:
+        Timer(name);
+        virtual startTimer(duration);
+        virtual restart();
+        virtual cancel();
+};
+
+class TimerVgt4 : public Timer
+{
+    public:
+        TimerVgt4() : Timer("VGT4") { }
+        startTimer(pdu);
+        virtual restart();
+        virtual cancel();
+}
+
+
+
+while (1)
+{
+    event = eventManager.waitForEvent();
+    
+    if (event->getName() == "VGT4")
+    {
+        // resend the packet
+        pdu = vgt4.pdu;
+        sendToLowerLayer(pdu);
+        vgt4.restart();
+    }
+    else if (event.getName() == "FromUpperLayer")
+    {
+        data = queueFromUpperLayer.pop();
+        OR
+        data = (EventQueue)event->getQueue().pop();
+        
+        // test if need of multiblock
+        if (multiblock)
+        {
+            multiblockId = ...
+            id = multiBlockTable.createNewMultiBlock(data);
+            block = multiBlockTable.getBlock(id, 1); // get first block
+            pdu = buildPdu(block);
+            sendToLowerLayer(pdu);
+        }
+        else
+        {
+            pdu = buildPdu(data);
+            sendToLowerLayer(pdu);
+        }
+        vgt4.start(pdu);
+    }
+    else if (event.getName() == "FromLowerLayer")
+    {
+        data = queueFromLowerLayer.pop();
+        // if ACK of a block of multimessage
+        id = ...
+        // send next block
+        block = multiBlockTable.getNextBlock(id);
+        pdu = buildPdu(block);
+        sendToLowerLayer(pdu);
+    }
+}
+
+sendToLowerLayer(pdu)
+{
+    if (SDU == mode)
+    {
+        queueToSduA429.push(pdu);
+    }
+    else if (VHF == mode)
+    {
+        queueToVhf.push(pdu)
+    }
+}
+
+

@@ -1,0 +1,1 @@
+ MyStaticF(int x);

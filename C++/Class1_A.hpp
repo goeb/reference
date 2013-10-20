@@ -1,0 +1,2 @@
+
+typdef int intFred;

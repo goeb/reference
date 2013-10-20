@@ -1,0 +1,10 @@
+
+http://osdir.com/ml/gcc.g++.bugs/2002-10/msg00000.html
+
+
+[bmh@epic ~/tmp/dlopen]$  g++ -o y.o y.cc -c
+[bmh@epic ~/tmp/dlopen]$  ld -E -shared y.o -o y.so
+[bmh@epic ~/tmp/dlopen]$  g++ x.cc -Wl,-E -ldl -rdynamic
+[bmh@epic ~/tmp/dlopen]$ ./a.out
+ Registered rae
+ Aborted (core dumped)
