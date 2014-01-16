@@ -1,0 +1,9 @@
+
+// dot -Tsvg dependency_graph.gv > dependency_graph.svg
+
+
+digraph graphname {
+     a -> b -> c;
+     b -> d;
+ }
+
