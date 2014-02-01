@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-main() {
-	int rc;
-	rc = system("ls *.c");
+int main()
+{
+	system("ls tytyty");
 }

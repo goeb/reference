@@ -1,6 +1,8 @@
-#include <stdio.h>
 
-main()
+#include <stdio.h>
+#include <stdlib.h>
+
+main(int argc, char ** argv)
 {
     const char * s = "[my-section]";
 

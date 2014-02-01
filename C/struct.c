@@ -1,6 +1,11 @@
-typedef struct s_s {
-	int i;
-struct s_s *a;
-} s_t;
-main()
-{ return; }
+
+
+struct A {
+	int x;
+	char * text;
+};
+
+struct A a = { 33, "tyty" };
+
+main() {
+}

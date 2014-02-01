@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include <string.h>
+#include <string>
 #include <list>
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,6 +13,7 @@
 
 std::list<void*> mallocList;
 std::list<char*> newList;
+std::list<std::string> stringList;
 const int CHUNK_SIZE = 1024*1024; // 1 MB
 int level = 0;
 
@@ -64,6 +66,26 @@ void do_delete()
 	}
 }
 
+void do_new_string() 
+{
+	char *x = new char[CHUNK_SIZE];
+	memset(x, 0xAB, CHUNK_SIZE);
+	std::string s;
+	s.assign(x, CHUNK_SIZE);
+	stringList.push_back(s);
+	delete[] x;
+	printf("string: %d chunks\n", stringList.size());	
+}
+
+void do_delete_string()
+{
+	if (stringList.size() >0) {
+		stringList.pop_front();
+		printf("delete-string: %d chunks remaining\n", stringList.size());
+	} else {
+        printf("delete-string: nothing to delete\n");
+    }
+}
 
 void do_malloc() 
 {
@@ -104,7 +126,7 @@ void do_stack()
 }
 
 int menu() {
-	printf("m: malloc, f: free, n: new, d: delete, s: stack, u: unstack, q: quit\n");
+	printf("m: malloc, f: free, n: new, d: delete, s: stack, u: unstack, L: new-string, l:delete-string, q: quit\n");
 
 	int action = getchar();
 	printf("\n");
@@ -113,6 +135,8 @@ int menu() {
 	else if (action == 'f') do_free();
 	else if (action == 'n') do_new();
 	else if (action == 'd') do_delete();
+	else if (action == 'L') do_new_string();
+	else if (action == 'l') do_delete_string();
 	else if (action == 's') do_stack();
 	else if (action == 'u') ; // do nothing (managed in do_stack)
 	else if (action == 'q') {

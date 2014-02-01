@@ -1,20 +1,11 @@
-#include <stdio.h>
+ #include <stdio.h>
+#include <string.h>
 
-main ()
+main()
 {
-	int rc, i;
-	char buf[BUFSIZ+1];
-	char tmp[BUFSIZ+1];
-	char tmp2[BUFSIZ+1];
-    int x;
-    int y;
+	char s[100];
+	memset(s, 41, 100);
+    int n = scanf("%s", s);
+	printf("s=%s, n=%d\n", s, n);
 
-	while (fgets (buf, BUFSIZ, stdin)) {
-        //rc = sscanf (buf, "%[^=] = %d , %d", tmp, &x, &y);
-		//printf ("rc=%d, tmp=%s, x=%d, y=%d\n", rc, tmp, x, y);
-		//rc = sscanf (buf, "%s = %s", tmp, tmp2);
-        //printf ("rc=%d, tmp=%s, tmp2=%s\n", rc, tmp, tmp2);
-		rc = sscanf (buf, "%[^=] = %s", tmp, tmp2);
-        printf ("rc=%d, tmp=%s, tmp2=%s\n", rc, tmp, tmp2);
-	}
 }

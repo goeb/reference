@@ -1,11 +1,10 @@
-#include <fcntl.h>
-#include <errno.h>
-#include <string.h>
+       #include <sys/types.h>
+       #include <sys/stat.h>
+       #include <fcntl.h>
+#include <stdio.h>
 
-main() {
-    int fd;
-    fd = open("xxx.x", O_CREAT|O_WRONLY|O_EXCL, 777);
-    printf("errno=%d, %s\n", errno, strerror(errno));
-    close(fd);
+main()
+{
+	int fd = open("yutui", O_WRONLY |O_TRUNC);
+	printf("fd=%d\n", fd);
 }
-

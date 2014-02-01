@@ -1,19 +1,15 @@
-
 #include <iostream>
-#include <string>
 
-
-//using namespace std;
-
-main() {
-	std::string s;
-	s = "toto";
-	std::cout << "s=" << s << std::endl;
+main()
+{
+	std::string s = "";
+	s += '\0';
+	s += 'x';
 	std::cout << "s.size()=" << s.size() << std::endl;
-    s += '\0';
-	std::cout << "s=" << s << ", s.size()=" << s.size() << std::endl;
-    s += "yoyo";
-	std::cout << "s=" << s << ", s.size()=" << s.size() << std::endl;
-    s += "yoyo";
 
+	std::string s2 = "";
+	s2 += s[0];
+	s2 += s[1];
+
+	std::cout << "s2.size()=" << s2.size() << std::endl;
 }
