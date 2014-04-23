@@ -1,4 +1,4 @@
- #include <stdio.h>
+#include <stdio.h>
 #include <string.h>
 
 main()
@@ -7,5 +7,4 @@ main()
 	memset(s, 41, 100);
     int n = scanf("%s", s);
 	printf("s=%s, n=%d\n", s, n);
-
 }
