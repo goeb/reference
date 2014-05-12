@@ -12,7 +12,7 @@ int testPopenRead()
 	int status;
 	char path[PATH_MAX];
 
-	fp = popen("ls", "r");
+	fp = popen("ls v*", "r");
 	if (fp == NULL) {
 		printf("popen error: %s\n", strerror(errno));
 		return 1;
