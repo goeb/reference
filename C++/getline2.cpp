@@ -19,7 +19,7 @@ int main(int arc, char **argv)
             std::cerr << "badbit: "  << strerror(errno) << std::endl;
         }
 
-    } else std::cerr << "cannot open file: " << argv[1] << std::endl;
+    } else std::cerr << "cannot open file: " << argv[1] << ": " << strerror(errno) << std::endl;
     return 0;
 }   
 
