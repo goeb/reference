@@ -1,0 +1,22 @@
+
+Generate RSA key pair
+---------------------
+openssl genrsa -out mykey.pem 1024
+openssl rsa -in mykey.pem -pubout > pubkey.pem
+
+sign the script
+---------------
+openssl dgst -sha1 -sign mykey.pem run.sh > sig.bin
+cat sig.bin >> run.sh
+
+
+verify
+-------
+sed -n -e "1,/^# signed below/p" run.sh  > plain
+sed -e "1,/^# signed below/d" run.sh > sig2
+openssl dgst -sha1 -verify pubkey.pem -signature sig2 plain 
+Verified OK
+
+
+# clean the run.sh
+mv plain run.sh
