@@ -1,0 +1,15 @@
+#!/bin/sh
+
+svn_url=`svn info |grep URL: | sed -e "s/URL: *//"`
+
+if [ -z "$svn_url" ]; then
+    echo error: not in a SVN folder
+    exit 1
+fi
+
+dir=`mktemp -d --suffix .svnk`
+cd $dir
+git svn clone "$svn_url" .
+gitk
+echo "Clean-up $dir..."
+rm -rf "$dir"
