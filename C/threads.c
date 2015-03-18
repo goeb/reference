@@ -14,7 +14,7 @@ typedef struct {
 void * f(void *p) {
 	int rc;
 	shared_stack_t *shared_stack = (shared_stack_t *)p;
-	printf("f: starting...\n");
+	printf("f: starting...(%d==%x)\n", pthread_self(), pthread_self());
 	while (1) {
 		printf("f: waiting for lock\n");
 		rc = pthread_mutex_lock(&shared_stack->mutex);
