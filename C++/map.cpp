@@ -1,18 +1,47 @@
+<<<<<<< HEAD
 
+=======
+// erasing from map
+>>>>>>> 3d5bca7fc20a94720260d10e181f87bae37c159e
 #include <iostream>
 #include <map>
 
 int main ()
 {
-    std::map<char,int> mymap;
-    mymap['a']=10;
-    mymap['b']=20;
-    mymap.erase ('c');
-    mymap.erase ('c');
+  std::map<char,int> mymap;
+  std::map<char,int>::iterator it;
 
-    std::map<char,int>::iterator it;
-    for (it=mymap.begin(); it!=mymap.end(); ++it)
-        std::cout << it->first << " => " << it->second << '\n';
+  // insert some values:
+  mymap['a']=10;
+  mymap['b']=20;
+  mymap['c']=30;
+  mymap['d']=40;
+  mymap['e']=50;
+  mymap['f']=60;
 
-    return 0;
+	std::cout << "erase 'b'" << std::endl;
+  it=mymap.find('b');
+  mymap.erase (it);                   // erasing by iterator
+
+  std::cout << "map size: " << mymap.size() << std::endl;
+
+	std::cout << "erase 'c'" << std::endl;
+  mymap.erase ('c');                  // erasing by key
+  std::cout << "map size: " << mymap.size() << std::endl;
+
+	std::cout << "erase 'c'" << std::endl;
+  mymap.erase ('c');                  // erasing by key
+  std::cout << "map size: " << mymap.size() << std::endl;
+
+	std::cout << "erase 'e' ..." << std::endl;
+  it=mymap.find ('e');
+  mymap.erase ( it, mymap.end() );    // erasing by range
+  std::cout << "map size: " << mymap.size() << std::endl;
+
+  // show content:
+  for (it=mymap.begin(); it!=mymap.end(); ++it)
+    std::cout << it->first << " => " << it->second << '\n';
+
+  return 0;
 }
+
