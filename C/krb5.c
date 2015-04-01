@@ -12,6 +12,11 @@
 
 char *progname = "yopyop";
 
+/**
+ * @param user
+ * Example: toto@example.com
+ *          <user>@<realm>
+ */
 void login(const char *user, const char *password)
 {
 
@@ -26,7 +31,15 @@ void login(const char *user, const char *password)
         com_err(progname, code, "while initializing Kerberos 5 library");
         FAIL("krb5_init_context");
     }
-    me = user;
+
+    int flags = 0;
+    code = krb5_parse_name_flags(ctx, user, flags, &me);
+    if (code) {
+        com_err(progname, code, "when parsing name %s", user);
+        FAIL("krb5_parse_name_flags");
+    }
+
+
     
 // k5_kinit 
 
