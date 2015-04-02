@@ -1,10 +1,10 @@
-#include <k5-int.h>
-#include "k5-platform.h"        /* for asprintf */
+#include <stdio.h>
+#include <string.h>
 #include <krb5.h>
 #include <com_err.h>
 
 /**
- * gcc krb5.c -I ~/Downloads/krb5-1.13.1/src/include -lkrb5 -g
+ * gcc krb5.c  -lkrb5 -lcom_err -g
  */
 
 #define FAIL(...) do { fprintf(stderr, "FAIL %s:%d ", __FILE__, __LINE__); \
