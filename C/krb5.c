@@ -33,17 +33,12 @@ void login(const char *user, const char *password)
     }
 
     int flags = 0;
-    code = krb5_parse_name_flags(ctx, user, flags, &me);
+    code = krb5_parse_name(ctx, user, &me);
     if (code) {
         com_err(progname, code, "when parsing name %s", user);
         FAIL("krb5_parse_name_flags");
     }
 
-
-    
-// k5_kinit 
-
-    struct k_opts* opts;
     krb5_creds my_creds;
     krb5_get_init_creds_opt *options = NULL;
     int i;
@@ -54,14 +49,25 @@ void login(const char *user, const char *password)
         FAIL("krb5_get_init_creds_opt_alloc");
     }
 
-    code = krb5_get_init_creds_password(ctx, &my_creds, me,
-                                            0, krb5_prompter_posix, 0, 0, 0, 0);
+    krb5_get_init_creds_opt_set_tkt_life(options, 5*60);
+    krb5_get_init_creds_opt_set_renew_life(options, 0);
+    krb5_get_init_creds_opt_set_forwardable(options, 0);
+    krb5_get_init_creds_opt_set_proxiable(options, 0);
+
+
+    code = krb5_get_init_creds_password(ctx, &my_creds, me, 0,
+                                  krb5_prompter_posix, 0, 0, 0, options);
     if (code) {
-        com_err(progname, code, "krb5_get_init_creds_opt_alloc");
+        if (code == KRB5KRB_AP_ERR_BAD_INTEGRITY) {
+            com_err(progname, 0, "Password incorrect while getting initial ticket");
+        } else {
+            com_err(progname, code, "getting initial ticket");
+        }
         FAIL("krb5_get_init_creds_password");
     }
 
-
+    krb5_get_init_creds_opt_free(ctx, options);
+    krb5_free_principal(ctx, me);
 }
 int main(int argc, char **argv)
 {
