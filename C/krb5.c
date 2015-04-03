@@ -4,7 +4,12 @@
 #include <com_err.h>
 
 /**
- * gcc krb5.c  -lkrb5 -lcom_err -g
+ * gcc krb5.c  -lkrb5 -lcom_err -g -o krb5-sso
+ *
+ * Usage :
+ *     krb5-sso "user name@DOMAIN"
+ *
+ * DOMAIN must be upper case
  */
 
 #define FAIL(...) do { fprintf(stderr, "FAIL %s:%d ", __FILE__, __LINE__); \
@@ -64,6 +69,8 @@ void login(const char *user, const char *password)
             com_err(progname, code, "getting initial ticket");
         }
         FAIL("krb5_get_init_creds_password");
+    } else {
+        printf("single sign-on OK\n");
     }
 
     krb5_get_init_creds_opt_free(ctx, options);
