@@ -10,7 +10,7 @@ void usage()
 	printf("usage: ldapClient <server> <DN> [<password>]\n");
 	printf("\n");
 	printf("Example:");
-	printf("    ldapClient ldap://example.com:389 \"John Doo\" abcdef\n");
+	printf("    ldapClient ldap://example.com:389 \"uid=John Doo,ou=people,dc=example,dc=com\" abcdef\n");
 	exit(1);
 }
 
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 		password = argv[3];
 	}
     const char *server = argv[1]; // ex: "ldap://nafiux.com:389"
-    const char *dn = argv[2]; // common name
+    const char *dn = argv[2]; // ex: "uid=John Doo,ou=people,dc=example,dc=com"
     printf( "Connecting as %s...\n", dn );
 
     /* Open LDAP Connection */
