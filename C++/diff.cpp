@@ -20,14 +20,24 @@ int min(int a, int b)
     else return b;
 }
 
+#define MAX_SIZE 1024
 void diff(const std::string &source, const std::string &dest)
 {
     const int source_len = source.size();
     const int dest_len = dest.size();
 
+    if (source_len > MAX_SIZE) {
+        printf("source_len > MAX_SIZE\n");
+        exit(1);
+    }
+    if (dest_len > MAX_SIZE) {
+        printf("dest_len > MAX_SIZE\n");
+        exit(1);
+    }
+
     // matrix of Levenshtein distance
     // build the matrix
-    char matrix[source_len][dest_len];
+    unsigned int matrix[MAX_SIZE][MAX_SIZE];
     memset(matrix, 0, sizeof(matrix));
 
     // initialize the matrix
@@ -49,20 +59,27 @@ void diff(const std::string &source, const std::string &dest)
     j = dest_len;
     i = source_len;
     while (i>0 and j>0) {
+        char modifier; // '+', '-' or '='
+        char character;
         if (source[i-1] == dest[j-1]) {
-            stack.insert(stack.begin(), std::make_pair('=', source[i-1]));
+            modifier = '=';
+            character = source[i-1];
             j = j-1;
             i = i-1;
         } else {
             // find the best cell
             if (matrix[i-1][j] < matrix[i][j-1]) {
-                stack.insert(stack.begin(), std::make_pair('-', source[i-1]));
+                modifier = '-';
+                character = source[i-1];
                 i = i-1;
             } else {
-                stack.insert(stack.begin(), std::make_pair('+', dest[j-1]));
+                modifier = '+';
+                character = dest[j-1];
                 j = j-1;
             }
         }
+        //printf("DEBUG: %c%c\n", modifier, character);
+        stack.insert(stack.begin(), std::make_pair(modifier, character));
     }
     while (i>0) { // source characters to be removed
         stack.insert(stack.begin(), std::make_pair('-', source[i-1])); 
@@ -83,11 +100,19 @@ void diff(const std::string &source, const std::string &dest)
             simplified_stack[i_s].second += stack[i].second;
         } else {
             i_s++;
-            simplified_stack[i_s] = std::make_pair(stack[i].first, std::string(1, stack[i].second));
+            // insert new modifier
+            char modifier = stack[i].first;
+            std::string newcontents;
+            newcontents += stack[i].second;
+            simplified_stack.push_back(std::make_pair(modifier, newcontents));
         }
         i++;
     }
-    // TODO print simplified_stack
+    // print simplified_stack
+    std::vector<std::pair<char, std::string> >::iterator chunk;
+    for (chunk=simplified_stack.begin(); chunk!=simplified_stack.end(); chunk++) {
+        printf("%c%s\n", chunk->first, chunk->second.c_str());
+    }
 }
 
 int loadFile(const char *filepath, std::string &data)
