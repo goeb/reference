@@ -71,8 +71,8 @@ int main(int argc, char **argv)
     auth.password = password;
 
     int authmethod = LDAP_AUTH_SASL;
-    char *sasl_mech = ber_strdup(argv[3]); // eg: "DIGEST-MD5"
-    char *ldapuri = ber_strdup(argv[1]);
+    char *sasl_mech = strdup(argv[3]); // eg: "DIGEST-MD5"
+    char *ldapuri = strdup(argv[1]);
 
     int protocol = LDAP_VERSION3;
     unsigned sasl_flags = LDAP_SASL_QUIET;
