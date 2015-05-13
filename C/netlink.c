@@ -10,6 +10,20 @@
 /* Example of listening to netlink events
  */
 
+const char *ifaToString(int ifa)
+{
+	switch (ifa) {
+		case IFA_UNSPEC: return "IFA_UNSPEC";
+		case IFA_ADDRESS: return "IFA_ADDRESS";
+		case IFA_LOCAL: return "IFA_LOCAL";
+		case IFA_LABEL: return "IFA_LABEL";
+		case IFA_BROADCAST: return "IFA_BROADCAST";
+		case IFA_ANYCAST: return "IFA_ANYCAST";
+		case IFA_CACHEINFO: return "IFA_CACHEINFO";
+		case IFA_MULTICAST: return "IFA_MULTICAST";
+		default: return "invalid-ifa";
+	}
+}
 
 void readNetlinkEvent(int sockId)
 {
@@ -50,7 +64,7 @@ void readNetlinkEvent(int sockId)
 			ifi = (struct ifinfomsg*) NLMSG_DATA(h);
 			char buf[INET6_ADDRSTRLEN];
 			const char *itf = if_indextoname(ifi->ifi_index, buf);
-			if (!itf) printf("itf=(nil)\n");
+			if (!itf) printf("itf=(nil): %s\n", strerror(errno));
 			else printf("itf=%s\n", itf);
 
 			if (ifi->ifi_flags & IFF_UP) {
@@ -76,8 +90,8 @@ void readNetlinkEvent(int sockId)
 					char ipaddr[INET_ADDRSTRLEN];
 
 					if (rth->rta_type != IFA_ADDRESS) {
-						printf("rth->rta_type != IFA_ADDRESS\n");
-						 continue;
+						printf("rth->rta_type=%d %s\n", rth->rta_type, ifaToString(rth->rta_type));
+						continue;
 					}
 
 					inet_ntop(ifa->ifa_family, RTA_DATA(rth), ipaddr, sizeof(ipaddr));
@@ -99,7 +113,7 @@ void readNetlinkEvent(int sockId)
 					char ipaddr[INET6_ADDRSTRLEN];
 
 					if (rth->rta_type != IFA_ADDRESS) {
-						printf("rth->rta_type != IFA_ADDRESS\n");
+						printf("rth->rta_type=%d %s\n", rth->rta_type, ifaToString(rth->rta_type));
 						continue;
 					}
 
