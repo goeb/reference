@@ -1,11 +1,16 @@
 
 /*
-     gcc auth_krb5_ldap.c -I/usr/include/mit-krb5 -L/usr/lib/i386-linux-gnu/mit-krb5 -lkrb5 -lldap
+     gcc -Wall auth_krb5_ldap_curl.c \
+		-I/usr/include/mit-krb5 -L/usr/lib/i386-linux-gnu/mit-krb5 -lkrb5 \
+		-lldap \
+		-I /usr/include/curl -lcurl
 
  *
  */
 #include <krb5.h>
 #include <ldap.h>
+#include <curl/curl.h>
+
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,6 +21,7 @@ void usage()
 { 
 	printf("usage: $0 krb5 <user@REALM> <password>\n");
 	printf("       $0 ldap <uri> <dname> <password>\n");
+	printf("       $0 curl <url>\n");
 	exit(1);
 }
 
@@ -135,12 +141,40 @@ int auth_ldap(char *uri, char *dname, char *password)
 
 }
 
+int curl_get(char *url)
+{
+	CURL *curl;
+	CURLcode res;
+
+	curl = curl_easy_init();
+	if (curl) {
+		curl_easy_setopt(curl, CURLOPT_URL, "url");
+		/* example.com is redirected, so we tell libcurl to follow redirection */ 
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
+		/* Perform the request, res will get the return code */ 
+		res = curl_easy_perform(curl);
+		/* Check for errors */ 
+		if (res != CURLE_OK)
+			printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+
+		/* always cleanup */ 
+		curl_easy_cleanup(curl);
+	}
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
-	if (argc < 4) usage();
+	if (argc < 3) usage();
 	if (0 == strcmp("krb5", argv[1])) {
+		if (argc < 4) usage();
 		int r = auth_krb5(argv[2], argv[3]);
 		printf("auth_krb5: r=%d\n", r);
+
+	} else if (0 == strcmp("curl", argv[1])) {
+		int r = curl_get(argv[2]);
+		printf("curl_get: r=%d\n", r);
 
 	} else if (0 == strcmp("ldap", argv[1])) {
 		if (argc < 5) usage();
