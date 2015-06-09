@@ -1,4 +1,12 @@
+
+/*
+     gcc auth_krb5_ldap.c -I/usr/include/mit-krb5 -L/usr/lib/i386-linux-gnu/mit-krb5 -lkrb5 -lldap
+
+ *
+ */
 #include <krb5.h>
+#include <ldap.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,6 +15,7 @@
 void usage()
 { 
 	printf("usage: $0 krb5 <user@REALM> <password>\n");
+	printf("       $0 ldap <uri> <dname> <password>\n");
 	exit(1);
 }
 
@@ -78,11 +87,67 @@ int auth_krb5(char *principal, char *password)
 
 }
 
+
+int auth_ldap(char *uri, char *dname, char *password)
+{
+	LDAP *ld;
+    int result;
+
+    // Open LDAP Connection
+    int r = ldap_initialize(&ld, uri);
+    if (r != LDAP_SUCCESS) {
+        printf("ldap_initialize error for server '%s': %s\n", uri, ldap_err2string(r));
+        return -1;
+    }
+    int version = LDAP_VERSION3;
+    r = ldap_set_option(ld, LDAP_OPT_PROTOCOL_VERSION, &version);
+    if (r != LDAP_SUCCESS) {
+        printf("ldap_set_option error for server '%s': %s\n", uri, ldap_err2string(r));
+        ldap_unbind_ext(ld, 0, 0);
+        result = -1;
+    }
+
+    struct berval cred;
+    cred.bv_len = strlen(password);
+    cred.bv_val = password;
+
+    struct berval *servcred = 0;
+
+    // User authentication
+    r = ldap_sasl_bind_s(ld, dname, 0, &cred, 0, 0, &servcred);
+    if (r != LDAP_SUCCESS) {
+        printf("ldap_simple_bind_s error for '%s': %s\n", dname, ldap_err2string(r));
+        result = -1;
+    } else {
+        printf("Ldap authentication success for user '%s'\n", dname);
+        result = 0;
+    }
+    if (servcred) {
+        // free server credentials TODO
+    }
+
+    r = ldap_unbind_ext(ld, 0, 0);
+    if (r != LDAP_SUCCESS) {
+        printf("ldap_unbind error for user '%s': %s",  dname, ldap_err2string(r));
+    }
+
+    return result;
+
+}
+
 int main(int argc, char **argv)
 {
 	if (argc < 4) usage();
 	if (0 == strcmp("krb5", argv[1])) {
 		int r = auth_krb5(argv[2], argv[3]);
-		printf("r=%d\n", r);
+		printf("auth_krb5: r=%d\n", r);
+
+	} else if (0 == strcmp("ldap", argv[1])) {
+		if (argc < 5) usage();
+		int r = auth_ldap(argv[2], argv[3], argv[4]);
+		printf("auth_ldap: r=%d\n", r);
+
 	} else usage();
+
+	return 0;
 }
