@@ -22,7 +22,7 @@ class B {
         }
         template <typename T> static std::vector<T> shufflestatic(const std::vector<T> &L, bool &x) {
             std::vector<T> xx;
-            return x;
+            return xx;
         }
 };
 
@@ -34,5 +34,7 @@ main()
 	a1.x = 333;
 	a2.x = (char*)"tututu";
 	printf("a1.x=%d, a2.x=%s", a1.x, a2.x);
-
+    std::vector<int> v;
+    bool b = true;
+    v = B::shufflestatic(v, b);
 }
