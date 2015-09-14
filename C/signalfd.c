@@ -42,6 +42,8 @@ int main()
     sigemptyset(&sigset);
     sigaddset(&sigset, SIGCHLD);
 
+    // Block the signals thet we handle using signalfd(), so they don't
+    // cause signal handlers or default signal actions to execute.
     sigprocmask(SIG_BLOCK, &sigset, NULL);
 
     int sigfd = signalfd(-1, &sigset, SFD_CLOEXEC);
