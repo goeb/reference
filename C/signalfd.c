@@ -23,7 +23,8 @@ void parent(int sigfd)
                 fprintf(stderr, "got SIGCHLD\n");
                 struct signalfd_siginfo si;
                 int n = read(sigfd, &si, sizeof(si));
-                fprintf(stderr, "sig-read: n=%d, sender=%d\n", n, si.ssi_pid);
+                fprintf(stderr, "sig-read: n=%d, sender=%d, exit-status=%d\n",
+                        n, si.ssi_pid, si.ssi_status);
             }
         }
     }
@@ -32,6 +33,7 @@ void child(int duration)
 {
     fprintf(stderr, "%d: child...\n", getpid());
     sleep(duration);
+    exit(4);
 }
 
 int main()
