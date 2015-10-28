@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-
-=======
 // erasing from map
->>>>>>> 3d5bca7fc20a94720260d10e181f87bae37c159e
 #include <iostream>
 #include <map>
 
