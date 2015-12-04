@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Populate Table Example</title>
+        <script language="javascript">
+
+var mydata = [
+    [ "2015-12-31 21:13:59", "a", 12345 ],
+    [ "2015-12-31 21:13:59", "a", 12345 ],
+    [ "2015-12-31 21:13:59", "a", 12345 ],
+    [ "2015-12-31 21:13:59", "a", 12345 ],
+    [ "2015-12-31 21:13:59", "a", 12345 ],
+    [ "2015-12-31 21:13:59", "a", 12345 ],
+    [ "2015-12-31 21:13:59", "a", 12345 ],
+    [ "2015-12-31 21:13:59", "a", 12345 ],
+    [ "2015-12-31 21:13:59", "a", 12345 ],
+    [ "2015-12-31 21:13:59", "a", 12345 ],
+    [ "2015-12-31 21:13:59", "a", 12345 ],
+];
+
+function populate(data) {
+    var table = document.getElementById('mytable');
+    var tableBody = table.getElementsByTagName('tbody')[0];
+    for (var i=0; i<data.length; i++) {
+        var tr = document.createElement('TR');
+        var row = data[i];
+        for (var j=0; j<row.length; j++) {
+            var td = document.createElement('TD')
+            td.appendChild(document.createTextNode(row[j]));
+            tr.appendChild(td);
+        }
+        tableBody.appendChild(tr);
+    }
+}
+        </script>
+    </head>
+    <body onload="populate(mydata);">
+
+        <h1>mydata</h1>
+
+        <table id="mytable">
+            <tr><th>datetime</th><th>variable</th><th>value</th></tr>
+        </table>
+    </body>
+</html>
