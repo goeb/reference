@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Load Local JSON Example</title>
+        <script language="javascript">
+            function loadLocalData() {
+                // create an iframe
+                var iframe = document.createElement("iframe");
+                iframe.name = "myiframe_name";
+                iframe.id = "myiframe_id";
+                iframe.style.display = "none"; // hidden
+                iframe.src="data.json";
+                document.body.appendChild(iframe);
+                iframe.addEventListener("load", function () {
+                    var div = document.getElementById('dataZone');
+                    var data = iframe.contentWindow.document.body.textContent;
+                    console.log("data=", data);
+                    div.innerHTML = data;
+                })
+            }
+        </script>
+    </head>
+    <body onload="loadLocalData();">
+
+        <h1>mydata</h1>
+
+        <div id="dataZone">
+        </div>
+    </body>
+</html>
