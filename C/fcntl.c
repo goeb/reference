@@ -63,7 +63,7 @@ int main (int argc, char* argv[])
      * let's try to lock it for reading. */
 	printf("Locking file... ");
     if (fcntl(fd, F_SETLK, &fd_lock) == -1) {
-		printf("Could not lock file %s %s\n", file, argv[1]);
+		printf("Could not lock file %s %s: %s\n", file, argv[1], strerror(errno));
     } else printf("ok\n");
 
 	printf("hit enter...");

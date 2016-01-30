@@ -7,8 +7,7 @@ void trimRight(std::string &s, const char *c)
     size_t i = s.size();
     while ( (i>0) && strchr(c, s[i-1]) ) i--;
 
-    if (i == 0) s = "";
-    else s = s.substr(0, i);
+    s = s.substr(0, i);
 }
 
 void test(const char *s)
