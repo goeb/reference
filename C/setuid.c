@@ -7,10 +7,14 @@
 
 int main()
 {
+	system("id");
+	system("touch toto_before_setuid");
+
 	int r = setuid(0);
 	printf("setuid(0)=%d, %s\n", r, strerror(errno));
 
-	r = system("id");
+	system("id");
+	system("touch toto_after_setuid");
 }
 
 

@@ -5,6 +5,8 @@
 #include <time.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
+
 
 void f(sigval_t value)
 {
@@ -29,5 +31,6 @@ int main()
 	timer_delete(timer);
 
 	sleep(2);
-
+	printf("exit 0...\n");
+	exit(0);
 }
