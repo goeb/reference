@@ -1,0 +1,28 @@
+
+h1 {
+    text-align: center;
+}
+
+.row0 {
+background-color:#fbfbc5;
+vertical-align:top;
+padding:5px;
+}
+
+.row1 {
+background-color:#ebebb5;
+vertical-align:top;
+padding:5px;
+}
+
+tr {
+background-color:#dbdba5;
+}
+
+body {
+background-color:#f5e0fb;
+}
+
+h2 {
+clear: both;
+}
