@@ -2,6 +2,7 @@
 class FakeComposite:
 
     def __init__(self, path=''):
+        if path == '': path = hex(id(self)).replace('0x', '').replace('L', '')
         self.path = '%s' % path
         self.current = 0
 
@@ -19,7 +20,7 @@ class FakeComposite:
             return FakeComposite(newpath)
 
     def __repr__(self):
-        return 'FakeComposite-%s' % (self.path)
+        return 'FC_%s' % (self.path)
 
     def __getitem__(self, i):
         return FakeComposite(self.path + '[%s]' % i)
@@ -27,13 +28,15 @@ class FakeComposite:
     def __setitem__(self, key, value):
         pass
 
-    def x__getattr__(self, key):
-        print 'key=', key
-        if key == '__call__': self.__call__()
-        return FakeComposite(self.level+1)
+    def __str__(self):
+        return self.__repr__()
 
-x = FakeComposite(55)
-print x
+    def __getattr__(self, key):
+        return FakeComposite(self.path + '.%s' % key)
+
+x = FakeComposite()
+y = FakeComposite()
+print "x=", x, "y=", y
 for c in x:
     print "c=", c
     for d in c:
@@ -42,5 +45,5 @@ for c in x:
 print "x[23]=", x[23]
 print "x['foo']=", x['foo']
 print "x[x]=", x[x]
-#print "x.bar=", x.bar
+print "x.bar=", x.bar
 x[1] = 'abc'
