@@ -1,0 +1,3 @@
+
+SUBDIRS = x y libzz
+
