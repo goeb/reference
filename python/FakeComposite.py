@@ -47,3 +47,4 @@ print "x['foo']=", x['foo']
 print "x[x]=", x[x]
 print "x.bar=", x.bar
 x[1] = 'abc'
+print "x...=", x['foo']['bar'][1].name.x.y.z

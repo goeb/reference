@@ -9,11 +9,11 @@ int main ()
 
   mymm.insert(std::pair<char,int>('a',10));
   mymm.insert(std::pair<char,int>('b',20));
-  mymm.insert(std::pair<char,int>('b',30));
   mymm.insert(std::pair<char,int>('b',40));
   mymm.insert(std::pair<char,int>('c',50));
-  mymm.insert(std::pair<char,int>('c',60));
+  mymm.insert(std::pair<char,int>('b',30));
   mymm.insert(std::pair<char,int>('d',60));
+  mymm.insert(std::pair<char,int>('c',60));
 
   std::cout << "mymm contains:\n";
   for (char ch='a'; ch<='d'; ch++)
@@ -24,6 +24,12 @@ int main ()
     for (std::multimap<char,int>::iterator it=ret.first; it!=ret.second; ++it)
       std::cout << ' ' << it->second;
     std::cout << '\n';
+  }
+
+  std::cout << "mymm contains (other view):\n";
+  std::multimap<char,int>::iterator it;
+  for (it = mymm.begin(); it != mymm.end(); it++) {
+	  std::cout << it->first << " => " << it->second << '\n';
   }
 
   return 0;
