@@ -1,0 +1,6 @@
+
+autoreconf -ivf
+mkdir build && cd build
+../configure --prefix=$PWD/install
+make
+make install
