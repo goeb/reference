@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 
 #define PATH_MAX 1000
@@ -12,7 +14,7 @@ int testPopenRead()
 	int status;
 	char path[PATH_MAX];
 
-	fp = popen("ls v*", "r");
+	fp = popen("./test.sh", "r");
 	if (fp == NULL) {
 		printf("popen error: %s\n", strerror(errno));
 		return 1;
@@ -24,6 +26,7 @@ int testPopenRead()
 
 
 	status = pclose(fp);
+	printf("status=%d, WEXITSTATUS(status)=%d\n", status, WEXITSTATUS(status));
 	if (status == -1) {
 		printf("pcloseerror: %s\n", strerror(errno));
 	} else {
