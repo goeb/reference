@@ -34,6 +34,9 @@ class FakeComposite:
     def __getattr__(self, key):
         return FakeComposite(self.path + '.%s' % key)
 
+    def __call__(self, *args):
+        return FakeComposite('%s%s' % (self.path, args) )
+
 x = FakeComposite()
 y = FakeComposite()
 print "x=", x, "y=", y
@@ -48,3 +51,7 @@ print "x[x]=", x[x]
 print "x.bar=", x.bar
 x[1] = 'abc'
 print "x...=", x['foo']['bar'][1].name.x.y.z
+
+print x.isOpen('one', 333)
+print x.connect('one', 333)[55]
+
