@@ -37,6 +37,31 @@ class FakeComposite:
     def __call__(self, *args):
         return FakeComposite('%s%s' % (self.path, args) )
 
+class FakeTuple:
+    def __init__(self):
+        self.current = 0
+
+    def __getitem__(self, i):
+        #print "FakeTuple.__getitem__, i=%s" % i
+        if i < 3:
+            return 'xyz'
+        raise IndexError('xxx')
+
+    # remove the "x" to use __iter__ instead of __getitem__
+    def x__iter__(self):
+        #print "FakeTuple.__iter__"
+        self.current = 0
+        self.high = 2
+        return self
+
+    def next(self): # Python 3: def __next__(self)
+        #print "FakeTuple.next"
+        if self.current > self.high:
+            raise StopIteration
+        else:
+            self.current += 1
+            return 'xxx-%s' % self.current
+
 x = FakeComposite()
 y = FakeComposite()
 print "x=", x, "y=", y
@@ -55,3 +80,5 @@ print "x...=", x['foo']['bar'][1].name.x.y.z
 print x.isOpen('one', 333)
 print x.connect('one', 333)[55]
 
+a, b, c = FakeTuple()
+print "FakeTuple(), a=%s, b=%s, c=%s" % (a, b, c)
