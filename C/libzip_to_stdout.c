@@ -1,3 +1,7 @@
+
+/*
+ * Example using libzip (compile with -lzip)
+ */
 #include <stdio.h>
 #include <unistd.h>
 
