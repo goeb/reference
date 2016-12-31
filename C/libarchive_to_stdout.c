@@ -56,6 +56,7 @@ int myopen(struct archive *a, void *client_data)
 
 la_ssize_t mywrite(struct archive *a, void *client_data, const void *buffer, size_t length)
 {
+	fprintf(stderr, "mywrite: length=%u\n", length);
 	return write(1, buffer, length); // write to stdout
 }
 
