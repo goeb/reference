@@ -31,7 +31,7 @@ void * f(void *p) {
 }
 
 
-main() {
+int main() {
 	shared_stack_t shared_stack;
 	pthread_t thread;
 	pthread_attr_t attr;
@@ -56,7 +56,8 @@ main() {
 		printf("main: push value %d (unlock)\n", shared_stack.value);
 		rc = pthread_rwlock_unlock(&shared_stack.mutex);
 		printf("main: unlock rc=%d\n", rc);
-		for (rc=0; rc<10; rc++) printf(".");
+		//for (rc=0; rc<10; rc++) printf(".");
+		usleep(100000);
 		printf("\n");
 	}
 }
