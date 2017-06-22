@@ -6,17 +6,17 @@
 #include <errno.h>
 #include <string.h>
 
-#define MQ_MSG_SIZE 100
+#define MQ_MSG_SIZE 10
 
-main()
+int main()
 {
     const char * qname = "/xxx";
 
-	struct mq_attr attr;  
-	attr.mq_flags = 0;  
-	attr.mq_maxmsg = 20;  
-	attr.mq_msgsize = MQ_MSG_SIZE;  
-	attr.mq_curmsgs = 0;  
+	struct mq_attr attr;
+	attr.mq_flags = 0;
+	attr.mq_maxmsg = 10;
+	attr.mq_msgsize = MQ_MSG_SIZE;
+	attr.mq_curmsgs = 0;
 	
 	// Create queue with mq_open in master process (doc):
 	
