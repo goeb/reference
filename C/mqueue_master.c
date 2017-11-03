@@ -6,32 +6,47 @@
 #include <errno.h>
 #include <string.h>
 
-#define MQ_MSG_SIZE 10
+#define MQ_MSG_SIZE 100
 
-int main()
+void usage()
 {
-    const char * qname = "/xxx";
+	printf("Usage: mq_recv <q-name>\n");
+	exit(1);
+}
+
+int main(int argc, char **argv)
+{
+	if (argc != 2) usage();
+
+    const char * qname = argv[1];
 
 	struct mq_attr attr;
 	attr.mq_flags = 0;
 	attr.mq_maxmsg = 10;
 	attr.mq_msgsize = MQ_MSG_SIZE;
 	attr.mq_curmsgs = 0;
+
+	mq_unlink(qname); // clean up possibly already existing queue
 	
 	// Create queue with mq_open in master process (doc):
 	
-	mqd_t queue = mq_open(qname, O_CREAT|O_RDWR|O_NONBLOCK, 0644, &attr);
 
-	if (-1 == queue) perror("mq_open: ");
+	mqd_t queue = mq_open(qname, O_CREAT|O_RDWR|O_NONBLOCK, 0644, &attr);
 	//queue = mq_open(qname, O_RDONLY);
+
+	if (-1 == queue) {
+		printf("mq_open error: %s\n", strerror(errno));
+		exit(1);
+	}
+
+	printf("Pending messages in queue %s: %ld\n", qname, attr.mq_curmsgs);
+	int r = mq_getattr(queue, &attr);
+	printf("Pending messages in queue %s: %ld\n", qname, attr.mq_curmsgs);
 	
 	// In reader process open queue for reading:
 	char rcvmsg[MQ_MSG_SIZE];
 
 	while (1) {
-		struct mq_attr attr;
-		int r = mq_getattr(queue, &attr);
-		printf("Pending messages in queue: %ld\n", attr.mq_curmsgs);
 		// prepare 'select'
 		fd_set rd;
 		int nfds = -1;
@@ -55,7 +70,7 @@ int main()
 				if (-1 == iret) {
 					printf("mq_receive error: %s\n", strerror(errno));
 				} else {
-					printf("master got: [%s]\n", rcvmsg);
+					printf("%s: %s\n", qname, rcvmsg);
 					if (0 == strcmp(rcvmsg, "quit")) {
 						int r = mq_unlink(qname);
 						printf("mq_unlink: %d, %s\n", r, strerror(errno));

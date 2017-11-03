@@ -6,12 +6,19 @@
 #include <stdio.h>
 #include <string.h>
 
+void usage()
+{
+	printf("Usage: mqueue_send <q-name> [<msg>]\n");
+	exit(1);
+}
+
 int main(int argc, char **argv)
 {
-	const char *msg = "hello";
-	if (argc > 1) msg = argv[1];
+	if (argc <= 1 || argc > 3) usage();
 
-	const char * qname = "/xxx";
+	const char *qname = argv[1];
+	const char *msg = NULL;
+	if (argc == 3) msg = argv[2];
 
 	// open queue for writing:
 	mqd_t queue = mq_open(qname, O_WRONLY|O_NONBLOCK);
@@ -20,11 +27,16 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	struct mq_attr attr;
-    int r = mq_getattr(queue, &attr);
-    printf("Info on queue: maxmsg=%ld, msgsize=%ld, curmsgs=%ld\n", attr.mq_maxmsg, attr.mq_msgsize, attr.mq_curmsgs);
+	if (msg) {
+		int ret = mq_send(queue, msg, strlen(msg)+1, 1); // take the null terminating char
+		if (ret != 0) printf("mq_send error: %s\n", strerror(errno));
 
-	r = mq_send(queue, msg, strlen(msg)+1, 1); // take the null terminating char
-	if (r != 0) printf("mq_send error: %s\n", strerror(errno));
+	} else {
+		struct mq_attr attr;
+    	int ret = mq_getattr(queue, &attr);
+		if (ret != 0) printf("mq_send error: %s\n", strerror(errno));
+		else printf("mq[%s]: maxmsg=%ld, msgsize=%ld, curmsgs=%ld\n", 
+				qname, attr.mq_maxmsg, attr.mq_msgsize, attr.mq_curmsgs);
+	}
 	
 }
