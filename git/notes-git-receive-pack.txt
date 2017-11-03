@@ -1,0 +1,37 @@
+
+An experience where I push from a repo to another one through pipes.
+Using:
+- git-receive-pack
+- git push
+
+mkdir /tmp/xgit
+cd /tmp/xgit
+mkfifo fifo1 fifo2
+
+git init --bare repo_x
+git clone repo_x repo_x.clone
+cd repo_x.clone
+echo 123 > foo
+git add foo
+git commit -m "file foo"
+
+# Now use 2 parallel terminals:
+
+# in terminal 1:
+cd /tmp/xgit
+git-receive-pack repo_x < fifo1 > fifo2
+
+# In terminal 2:
+cd /tmp/xgit
+cd repo_x.clone
+exec 7>../fifo1
+exec 6<../fifo2
+git push fd::6,7 master
+	Counting objects: 3, done.
+	Writing objects: 100% (3/3), 207 bytes | 0 bytes/s, done.
+	Total 3 (delta 0), reused 0 (delta 0)
+	To fd::6,7
+ 	* [new branch]      master -> master
+
+# Result: the commit has been pushed to the initial repo_x
+
