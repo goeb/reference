@@ -35,3 +35,17 @@ git push fd::6,7 master
 
 # Result: the commit has been pushed to the initial repo_x
 
+
+-- same test when the origin has commits that the clone has not --
+(push with option -f)
+
+cd /tmp/xgit
+cd repo_x.clone
+git push fd::6,7 master -f
+    Counting objects: 3, done.
+    Writing objects: 100% (3/3), 204 bytes | 0 bytes/s, done.
+    Total 3 (delta 0), reused 0 (delta 0)
+    To fd::6,7
+     + 1c08620...007a673 master -> master (forced update)
+
+=> conclusion: git-receive-pack does not prevent forced pushing
