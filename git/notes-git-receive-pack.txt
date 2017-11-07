@@ -49,3 +49,23 @@ git push fd::6,7 master -f
      + 1c08620...007a673 master -> master (forced update)
 
 => conclusion: git-receive-pack does not prevent forced pushing
+
+-- receive.denyNonFastForwards
+cd /tmp/xgit
+cd repo_x
+git config receive.denyNonFastForwards true
+
+cd /tmp/xgit/repo_x.clone
+git push fd::6,7 master
+    To fd::6,7
+     ! [rejected]        master -> master (fetch first)
+    error: failed to push some refs to 'fd::6,7'
+    hint: Updates were rejected because the remote contains work that you do
+    hint: not have locally. This is usually caused by another repository pushing
+    hint: to the same ref. You may want to first integrate the remote changes
+    hint: (e.g., 'git pull ...') before pushing again.
+    hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+
+=> conclusion: git-receive-pack prevents forced pushing if receive.denyNonFastForwards=true
+
+
