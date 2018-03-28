@@ -13,6 +13,7 @@ usage() {
 }
 
 TEMP=$(getopt -o vo: --long verbose,output: -n "$0" -- "$@")
+echo TEMP=$TEMP
 
 if [ $? != 0 ]; then exit 1; fi
 
@@ -31,7 +32,7 @@ printArgs "$@"
 while [ $# -ne 0 ]; do
 	case "$1" in
 		-o|--output) output=$2; shift 2;;
-		-v|--verbose) verbose=1; shitf;;
+		-v|--verbose) verbose=1; shift;;
 		--) shift; break;;
 		*) usage;;
 	esac
