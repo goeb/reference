@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/epoll.h>
@@ -30,7 +31,7 @@ int main()
 	for (;;) {
 		nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1);
 		printf("epoll_wait: nfds=%d\n", nfds);
-		if (nfds == -1) {
+		if (nfds == -1 && errno != EINTR) {
 			perror("epoll_pwait");
 			exit(EXIT_FAILURE);
 		}

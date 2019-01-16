@@ -1,32 +1,37 @@
 #include <stdio.h>
-       #include <sys/time.h>
-       #include <sys/types.h>
-       #include <unistd.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdlib.h>
 
-       int
-       main(void)
-       {
-           fd_set rfds;
-           struct timeval tv;
-           int retval;
 
-while (1) {
-/* Watch stdin (fd 0) to see when it has input. */
-           FD_ZERO(&rfds);
-           FD_SET(0, &rfds);
-           /* Wait up to five seconds. */
-           tv.tv_sec = 1;
-           tv.tv_usec = 0;
+	int
+main(void)
+{
+	fd_set rfds;
+	struct timeval tv;
+	int retval;
 
-           retval = select(1, &rfds, NULL, NULL, &tv);
-           /* Don't rely on the value of tv now! */
+	while (1) {
+		/* Watch stdin (fd 0) to see when it has input. */
+		FD_ZERO(&rfds);
+		FD_SET(0, &rfds);
+		/* Wait up to five seconds. */
+		tv.tv_sec = 5;
+		tv.tv_usec = 0;
 
-           if (retval)
-               printf("Data is available now.\n");
-               /* FD_ISSET(0, &rfds) will be true. */
-           else
-               printf("No data within five seconds.\n");
+		retval = select(1, &rfds, NULL, NULL, &tv);
+		printf("retval=%d\n", retval);
+		perror("select");
+	
+		/* Don't rely on the value of tv now! */
+
+		if (retval)
+			printf("Data is available now.\n");
+		/* FD_ISSET(0, &rfds) will be true. */
+		else
+			printf("No data within five seconds.\n");
+	}
+	exit(0);
 }
-           exit(0);
-       }
 

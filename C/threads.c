@@ -36,6 +36,7 @@ main() {
 	rc = pthread_mutex_init(&shared_stack.mutex, NULL);
 
 	rc = pthread_mutex_lock(&shared_stack.mutex);
+	printf("pthread_create...\n");
 	pthread_create(&thread, NULL, &f, &shared_stack);
 	sleep(2);
 	rc = pthread_mutex_unlock(&shared_stack.mutex);

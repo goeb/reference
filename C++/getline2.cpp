@@ -5,17 +5,25 @@
 #include <string.h>
 #include <unistd.h>
 
-int main(int arc, char **argv)
+int main(int argc, char **argv)
 {
     std::string line;
+    std::istream *is;
     std::ifstream infile;
-    infile.open(argv[1]); // open file
-    if (infile) {
-        while (getline(infile, line)) {
-            std::cout << "line: " << line << std::endl;
+
+    if (argc > 1) {
+        infile.open(argv[1]); // open file
+        is = &infile;
+    } else {
+        is = &std::cin;
+    }
+
+    if (*is) {
+        while (getline(*is, line)) {
+            std::cout << "line: [" << line << "]" << std::endl;
             sleep(2);
         }
-        if (infile.bad()) {
+        if (is->bad()) {
             std::cerr << "badbit: "  << strerror(errno) << std::endl;
         }
 
