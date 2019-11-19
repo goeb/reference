@@ -1,0 +1,42 @@
+#!/bin/sh
+
+usage() {
+	echo "Usage: 1. opkg_tool -t IPK"
+	echo "       2. opkg_tool -x IPK"
+}
+
+
+extract_package_step1() {
+	ipk_file=$(realpath "$1")
+	destdir="$2"
+	cd "$destdir"
+	ar x "$ipk_file"
+
+	# extract control
+	mkdir control
+	tar xvf control.tar.*z* -C control
+
+	cd -
+}
+
+show_package() {
+	workdir=$(mktemp -d /tmp/opkg_tool_XXXX)
+	extract_package_step1 "$1" "$workdir"
+
+	echo "---------------------- FILES ----------------------"
+	tar tvf "$workdir"/data.tar.*z*
+
+	for f in "$workdir"/control/*; do
+		echo "---------------------- $f ----------------------"
+		cat "$f"
+	done
+
+	rm -rf "$workdir"
+}
+
+
+case "$1" in
+	-t) shift; show_package "$@";;
+	-x) shift; extract_package "$@";;
+	*) usage;;
+esac
