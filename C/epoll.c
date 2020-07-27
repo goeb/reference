@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/epoll.h>
+#include <unistd.h>
+#include <string.h>
+
 
 #define MAX_EVENTS 10
 
@@ -35,6 +38,12 @@ int main()
 			perror("epoll_pwait");
 			exit(EXIT_FAILURE);
 		}
-
+		if (nfds == 1) {
+			// read the first event slot
+			char buf[100];
+			memset(buf, 0, 100);
+			ssize_t n = read(events[0].data.fd, buf, 100);
+			printf("got: %s\n", buf);
+		}
 	}
 }
