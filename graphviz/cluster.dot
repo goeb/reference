@@ -1,0 +1,28 @@
+digraph {
+	compound=true;
+	node[shape=box]
+	edge[minlen=2]
+	#splines=polyline
+
+	node1[label="node1-aaaaaaaaaaa-bb"]
+	node1 -> node2bis [xlabel="1" lhead="cluster_b"];
+	node3[label="node3-very-xxx"]
+    node1 -> node3;
+	node3 -> node2 [xlabel="some action",lhead="cluster_b"];
+
+	subgraph cluster_b {
+    	label="Cluster B";
+    	node2[label="long-long-node2"]
+		node4[label="long-long-node4"]
+		node6; node8[label="xxxxx-yyyyyy"]; nodeA; nodeB
+		node2bis[style=invisible]
+
+	}
+	edge[style=dashed]
+
+	node2 -> node4 [xlabel="2"];
+ 	node2 -> nodeA 
+	node4 -> node6 # [sametail="x"]
+	node4 -> node8 # [sametail="x"]
+	node4 -> nodeB # [sametail="x"]
+}
