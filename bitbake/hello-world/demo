@@ -1,0 +1,9 @@
+#!/bin/sh
+
+[ -z "$POKY" ] && POKY=/path/to/poky
+export PATH=$PATH:$POKY/bitbake/bin
+export PYTHONPATH=$PYTHONPATH:$POKY/bitbake/lib
+export BBPATH=.
+export BBFILES="*.bb"
+
+bitbake hello
