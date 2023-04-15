@@ -1,0 +1,64 @@
+digraph
+{
+splines=false // have strait edges
+//nodesep=1
+//ranksep=1
+	fontname="Helvetica,Arial,sans-serif"
+	node [fontname="Helvetica,Arial,sans-serif"]
+	edge [fontname="Helvetica,Arial,sans-serif"]
+	layout=dot
+	label="Example of sequence diagram"
+	labelloc = "t"
+
+	node [shape=box]
+	// arbitrary path on rigid grid
+	A0 [label=Alice,fixedsize=false]
+    B0 [label=Bob]
+	C3 [label="Machine with a\nlarge wheel, and\nsome lights"]
+
+	A1[shape=circle,width=0.01,fixedsize=true,label=""]
+	A2[shape=circle,width=0.01,fixedsize=true,label=""]
+	B1[shape=circle,width=0.01,fixedsize=true,label=""]
+	B2[shape=circle,width=0.01,fixedsize=true,label=""]
+	A1 -> B1 [label=SYN]
+	B2 -> A2 [label="SYN,ACK"]
+	B3 -> C3 [label="create\nand start\nthe engine"]
+	C4 [label="do stuff...\nand more",shape=ellipse]
+	C5 [shape=none,label=X]
+	B4 [label="a long long text aa--bb-b-b-b-c\n123"]
+
+
+	A5 -> C6 [label="hello"]
+	B5 -> A6 [label="goodbye"]
+	B6 -> C7 [label="lost message"]
+	C7 [label=X,shape=none]
+	A4 -> B4 [label="discuss",dir=both]
+	A3 -> B3 [label=" ",dir=both] // put a SPACE, otherwise the edge may be curved
+
+
+	edge [weight=1000,arrowhead=none]//,style=invis]
+
+	// uncomment to hide the grid
+	node [shape=none,width=0.01,label=""]
+
+	A0 -> A1 -> A2 -> A3 -> A4 -> A5 -> A6 -> A7 -> A8
+	B0 -> B1 -> B2 -> B3 -> B4 -> B5 -> B6 -> B7 -> B8
+
+	edge [weight=1000,arrowhead=none]
+	C3 -> C4 -> C5
+
+	edge [weight=1000,arrowhead=none,style=invis]
+	C0 -> C1 -> C2 -> C3
+	C5 -> C6 -> C7 -> C8
+
+	edge [style=invis,weight=10]
+	rank=same {A0 -> B0 -> C0 }
+	rank=same {A1 -> B1 -> C1 }
+	rank=same {A2 -> B2 -> C2 }
+	rank=same {A3 -> B3 -> C3 }
+	rank=same {A4 -> B4 -> C4 }
+	rank=same {A5 -> B5 -> C5 }
+	rank=same {A6 -> B6 -> C6 }
+	rank=same {A7 -> B7 -> C7 }
+	rank=same {A8 -> B8 -> C8 }
+}
