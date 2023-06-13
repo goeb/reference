@@ -12,6 +12,7 @@ int main(int argc, char **argv)
 	}
 
 	char resolved_path[PATH_MAX];
+	printf("Using buffer of size PATH_MAX=%d\n", PATH_MAX);
 	char *ptr = realpath(argv[1], resolved_path);
 	if (!ptr) {
 		fprintf(stderr, "realpath error: %s\n", strerror(errno));

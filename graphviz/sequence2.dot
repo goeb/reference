@@ -1,6 +1,6 @@
 digraph
 {
-splines=false // have strait edges
+splines=line // have strait edges
 //nodesep=1
 //ranksep=1
 	fontname="Helvetica,Arial,sans-serif"
@@ -15,6 +15,7 @@ splines=false // have strait edges
 	A0 [label=Alice,fixedsize=false]
     B0 [label=Bob]
 	C3 [label="Machine with a\nlarge wheel, and\nsome lights"]
+A0 -> A7 [label="xx"] 
 
 	A1[shape=circle,width=0.01,fixedsize=true,label=""]
 	A2[shape=circle,width=0.01,fixedsize=true,label=""]
@@ -28,13 +29,15 @@ splines=false // have strait edges
 	B4 [label="a long long text aa--bb-b-b-b-c\n123"]
 
 
-	A5 -> C6 [label="hello"]
+	A5 -> C5 [xlabel="hello"]
 	B5 -> A6 [label="goodbye"]
 	B6 -> C7 [label="lost message"]
 	C7 [label=X,shape=none]
 	A4 -> B4 [label="discuss",dir=both]
 	A3 -> B3 [label=" ",dir=both] // put a SPACE, otherwise the edge may be curved
 
+	A7 -> B7 [label="get-stuff"]
+	B7 -> A7 [label="stuff"]
 
 	edge [weight=1000,arrowhead=none]//,style=invis]
 
