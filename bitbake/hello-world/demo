@@ -6,4 +6,4 @@ export PYTHONPATH=$PYTHONPATH:$POKY/bitbake/lib
 export BBPATH=.
 export BBFILES="*.bb"
 
-bitbake hello
+bitbake hello -vvv
