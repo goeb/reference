@@ -2,9 +2,7 @@
  * Original file: xfce4-settings-4.12.4/dialogs/accessibility-settings/find-cursor.c
  *
  * Compile with:
- * gcc highlight-cursor.c \
- *     $(pkg-config --libs --cflags glib-2.0) \
- *     $(pkg-config --libs --cflags gtk+-2.0)
+ * gcc -o highlight-cursor highlight-cursor-gtk2.c $(pkg-config --libs --cflags glib-2.0) $(pkg-config --libs --cflags gtk+-2.0)
  */
 
 /*
@@ -49,8 +47,8 @@ gint screenshot_offset_x, screenshot_offset_y;
 gint workaround_offset = 1;
 
 static void usage() {
-	printf("Usage: 1. highlight-cursor --size SIZE\n");
-	printf("       2. highlight-cursor --stop\n");
+    printf("Usage: 1. highlight-cursor --size SIZE\n");
+    printf("       2. highlight-cursor --stop\n");
     exit(1);
 }
 
@@ -179,8 +177,8 @@ gint main(gint argc, gchar **argv) {
     gtk_init(&argc, &argv);
 
     if (argc < 1) usage();
-	gchar *PROGNAME = g_path_get_basename(argv[0]);
-	printf("PROGNAME=%s\n", PROGNAME);
+    gchar *PROGNAME = g_path_get_basename(argv[0]);
+    printf("PROGNAME=%s\n", PROGNAME);
     argc--; argv++; // skip the program name
     while (argc) {
         if (0 == g_strcmp0(argv[0], "--size")) {
@@ -195,16 +193,16 @@ gint main(gint argc, gchar **argv) {
         argc--; argv++;
     }
 
-	const char *DIR = "/tmp/highlight-cursor.d";
-	int err = mkdir(DIR, 0644);
-	if (err) {
-		printf("rmdir %s\n", DIR);
-		rmdir(DIR);
-		printf("killall %s\n", PROGNAME);
-		gchar *killall_argv[] = { "killall", PROGNAME };
+    const char *DIR = "/tmp/highlight-cursor.d";
+    int err = mkdir(DIR, 0644);
+    if (err) {
+        printf("rmdir %s\n", DIR);
+        rmdir(DIR);
+        printf("killall %s\n", PROGNAME);
+        gchar *killall_argv[] = { "killall", PROGNAME };
         gint exit_status = 0;
         gboolean result = g_spawn_sync(NULL, killall_argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, &exit_status, NULL);
-		exit(0);
+        exit(0);
     }
 
     /* just get the position of the mouse cursor */
@@ -243,6 +241,7 @@ gint main(gint argc, gchar **argv) {
         if (!pixbuf)
             g_warning("Getting screenshot failed");
     }
+
     g_signal_connect(G_OBJECT(window), "expose-event",
                       G_CALLBACK(find_cursor_window_expose), GINT_TO_POINTER(composited));
     g_signal_connect(G_OBJECT(window), "destroy",
@@ -251,8 +250,7 @@ gint main(gint argc, gchar **argv) {
 
     gtk_widget_show_all(GTK_WIDGET(window));
 
-	timeout(window);
-    //g_timeout_add(1000, timeout, window);
+    timeout(window);
 
     gtk_main();
 
