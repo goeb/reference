@@ -1,6 +1,6 @@
 
 autoreconf -ivf
 mkdir build && cd build
-../configure --prefix=$PWD/install
+../configure --prefix=$PWD/install --with-curl
 make
 make install
