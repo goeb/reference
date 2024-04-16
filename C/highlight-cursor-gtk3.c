@@ -47,8 +47,7 @@ gint screenshot_offset_x, screenshot_offset_y;
 gint workaround_offset = 1;
 
 static void usage() {
-    printf("Usage: 1. highlight-cursor --size SIZE\n");
-    printf("       2. highlight-cursor --stop\n");
+    printf("Usage: highlight-cursor [--size SIZE]\n");
     exit(1);
 }
 
@@ -57,8 +56,6 @@ static gboolean timeout(gpointer data) {
     gtk_widget_queue_draw(widget);
     return TRUE;
 }
-
-
 
 static GdkPixbuf * get_rectangle_screenshot(gint x, gint y) {
     GdkPixbuf *screenshot = NULL;
@@ -158,8 +155,108 @@ find_cursor_window_draw(GtkWidget      *widget,
 
     return FALSE;
 }
+static void handle_method_call(GDBusConnection       *connection,
+                               const gchar           *sender,
+                               const gchar           *object_path,
+                               const gchar           *interface_name,
+                               const gchar           *method_name,
+                               GVariant              *parameters,
+                               GDBusMethodInvocation *invocation,
+                               gpointer               user_data)
+{
+    if (g_strcmp0(method_name, "Stop") == 0) {
+        g_dbus_method_invocation_return_value(invocation, NULL);
+        exit(0);
+    } else {
+        g_dbus_method_invocation_return_dbus_error(invocation, "org.highlight-cursor.Failed",
+                                                               "Invalid method name");
+    }
+
+}
+/* Introspection data for the service we are exporting */
+static const gchar introspection_xml[] =
+  "<node>"
+  "  <interface name='org.highlightcursor'>"
+  "    <method name='Stop'/>"
+  "  </interface>"
+  "</node>";
+
+static const GDBusInterfaceVTable interface_vtable =
+{
+  handle_method_call,
+  NULL,
+  NULL,
+  { 0 }
+};
+ 
+static void on_bus_acquired(GDBusConnection *connection, const gchar *name, gpointer user_data)
+{
+    printf("on_bus_acquired\n");
+    guint registration_id;
+    static GDBusNodeInfo *introspection_data = NULL;
+    introspection_data = g_dbus_node_info_new_for_xml(introspection_xml, NULL);
+    registration_id = g_dbus_connection_register_object(connection,
+                                                        "/org/HighlightCursor",
+                                                        introspection_data->interfaces[0],
+                                                        &interface_vtable,
+                                                        NULL,  /* user_data */
+                                                        NULL,  /* user_data_free_func */
+                                                        NULL); /* GError** */
+}
+
+static void on_name_acquired(GDBusConnection *connection, const gchar *name, gpointer user_data)
+{
+    printf("on_name_acquired\n");
+}
+
+static void on_name_lost(GDBusConnection *connection, const gchar *name, gpointer user_data)
+{
+    printf("on_name_lost\n");
+  exit (1);
+}
 
 
+static void start_dbus() {
+    printf("start_dbus\n");
+    guint owner_id = g_bus_own_name (G_BUS_TYPE_SESSION,
+                                     "org.highlightcursor",
+                                     G_BUS_NAME_OWNER_FLAGS_NONE,
+                                     on_bus_acquired,
+                                     on_name_acquired,
+                                     on_name_lost,
+                                     NULL,
+                                     NULL);
+
+}
+
+static int try_stop_running_instance()
+{
+    GError *error = NULL;
+    GDBusConnection *connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
+    if (error) return -1;
+
+    GDBusProxy *proxy = g_dbus_proxy_new_sync(connection, G_DBUS_PROXY_FLAGS_NONE, NULL,
+                       "org.highlightcursor",
+                       "/org/HighlightCursor",
+                       "org.highlightcursor",
+                       NULL,
+                       &error);
+    if (error) return -2;
+
+    g_dbus_proxy_call_sync(proxy,
+                        "Stop", // Remote method name
+                        NULL,
+                        G_DBUS_CALL_FLAGS_NONE,
+                        1000, // timeout (ms) 
+                        NULL,
+                        &error);
+    if (error) return -3;
+
+    g_dbus_connection_close_sync(connection, NULL, &error);
+    if (error) return -4;
+
+    return 0; // success
+}
 
 gint main(gint argc, gchar **argv) {
     GError        *error = NULL;
@@ -173,9 +270,6 @@ gint main(gint argc, gchar **argv) {
 
     gtk_init(&argc, &argv);
 
-    if (argc < 1) usage();
-    gchar *PROGNAME = g_path_get_basename(argv[0]);
-    printf("PROGNAME=%s\n", PROGNAME);
     argc--; argv++; // skip the program name
     while (argc) {
         if (0 == g_strcmp0(argv[0], "--size")) {
@@ -185,22 +279,17 @@ gint main(gint argc, gchar **argv) {
                 printf("Invalid size\n");
                 exit(1);
             }
+            argc -= 2; argv += 2; // consume the 2 arguments
         } else usage();
-
-        argc--; argv++;
     }
 
-    const char *DIR = "/tmp/highlight-cursor.d";
-    int err = mkdir(DIR, 0644);
-    if (err) {
-        printf("rmdir %s\n", DIR);
-        rmdir(DIR);
-        printf("killall %s\n", PROGNAME);
-        gchar *killall_argv[] = { "killall", PROGNAME };
-        gint exit_status = 0;
-        gboolean result = g_spawn_sync(NULL, killall_argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, &exit_status, NULL);
+    int err = try_stop_running_instance();
+    if (!err) {
+        // previous instance stopped
         exit(0);
     }
+    printf("try_stop_running_instance() -> %d\n", err);
+    // else, run normally
 
     /* just get the position of the mouse cursor */
     display = gdk_display_get_default();
@@ -251,6 +340,8 @@ gint main(gint argc, gchar **argv) {
     gtk_widget_show_all(GTK_WIDGET(window));
 
     timeout(window);
+
+    start_dbus();
 
     gtk_main();
 

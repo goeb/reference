@@ -199,7 +199,7 @@ static const GDBusInterfaceVTable interface_vtable =
  
 static void on_bus_acquired(GDBusConnection *connection, const gchar *name, gpointer user_data)
 {
-	printf("on_bus_acquired\n");
+    printf("on_bus_acquired\n");
     guint registration_id;
     static GDBusNodeInfo *introspection_data = NULL;
     introspection_data = g_dbus_node_info_new_for_xml(introspection_xml, NULL);
@@ -214,19 +214,19 @@ static void on_bus_acquired(GDBusConnection *connection, const gchar *name, gpoi
 
 static void on_name_acquired(GDBusConnection *connection, const gchar *name, gpointer user_data)
 {
-	printf("on_name_acquired\n");
+    printf("on_name_acquired\n");
 }
 
 static void on_name_lost(GDBusConnection *connection, const gchar *name, gpointer user_data)
 {
-	printf("on_name_lost\n");
+    printf("on_name_lost\n");
   exit (1);
 }
 
 
 static void start_dbus() {
-	printf("start_dbus\n");
-	guint owner_id = g_bus_own_name (G_BUS_TYPE_SESSION,
+    printf("start_dbus\n");
+    guint owner_id = g_bus_own_name (G_BUS_TYPE_SESSION,
                                      "org.highlightcursor",
                                      G_BUS_NAME_OWNER_FLAGS_NONE,
                                      on_bus_acquired,
@@ -263,7 +263,7 @@ static int try_stop_running_instance()
     g_dbus_connection_close_sync(connection, NULL, &error);
     if (error) return -4;
 
-	return 0; // success
+    return 0; // success
 }
 
 gint main(gint argc, gchar **argv)
@@ -291,11 +291,11 @@ gint main(gint argc, gchar **argv)
 
     int err = try_stop_running_instance();
     if (!err) {
-		// previous instance stopped
-		exit(0);
-	}
-	printf("try_stop_running_instance() -> %d\n", err);
-	// else, run normally
+        // previous instance stopped
+        exit(0);
+    }
+    printf("try_stop_running_instance() -> %d\n", err);
+    // else, run normally
 
     /* just get the position of the mouse cursor */
     root_window = gdk_get_default_root_window();
@@ -344,7 +344,7 @@ gint main(gint argc, gchar **argv)
 
     timeout(window);
 
-	start_dbus();
+    start_dbus();
 
     gtk_main();
 
