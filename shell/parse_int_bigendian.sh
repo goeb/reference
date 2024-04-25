@@ -9,6 +9,8 @@
 # integer: 0x123456
 # Method 2:
 # integer: 0x123456
+# Method 3:
+# integer: 0x123456
 # 
 
 cat_binary() {
@@ -37,5 +39,13 @@ parse_4bytes_bigendian_2() {
 	printf "integer: 0x%x\n" $result
 }
 
+parse_4bytes_bigendian_3() {
+	echo "Method 3:"
+	hex=$(cat_binary | hexdump -e '/1 "%02x"')
+	result=$((0x$hex))
+	printf "integer: 0x%x\n" $result
+}
+
 parse_4bytes_bigendian_1
 parse_4bytes_bigendian_2
+parse_4bytes_bigendian_3
