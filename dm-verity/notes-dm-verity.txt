@@ -1,0 +1,56 @@
+truncate -s 100M data_partition.img 
+/sbin/mkfs.ext4 data_partition.img 
+mkdir mnt 
+sudo mount -o loop data_partition.img mnt/ 
+sudo chown -R $USER:$USER mnt
+echo "hello" > mnt/one.txt 
+echo "integrity" > mnt/two.txt 
+sudo umount mnt/ 
+
+truncate -s 100M hash_partition.img
+/sbin/veritysetup -v --debug format data_partition.img hash_partition.img 
+
+# cryptsetup 2.1.0 processing "/sbin/veritysetup -v --debug format data_partition.img hash_partition.img"
+# Running command format.
+# Allocating context for crypt device hash_partition.img.
+# Trying to open and read device hash_partition.img with direct-io.
+# Initialising device-mapper backend library.
+# Formatting device hash_partition.img as type VERITY.
+# Crypto backend (OpenSSL 1.1.1d  10 Sep 2019) initialized in cryptsetup library version 2.1.0.
+# Detected kernel Linux 4.19.0-6-amd64 x86_64.
+# Setting ciphertext data device to data_partition.img.
+# Trying to open and read device data_partition.img with direct-io.
+# Hash creation sha256, data device data_partition.img, data blocks 25600, hash_device hash_partition.img, offset 1.
+# Using 3 hash levels.
+# Data device size required: 104857600 bytes.
+# Hash device size required: 835584 bytes.
+# Updating VERITY header of size 512 on device hash_partition.img, offset 0.
+VERITY header information for hash_partition.img
+UUID:                   9caf7d98-9dd6-4b08-bff7-e86f779c6a09
+Hash type:              1
+Data blocks:            25600
+Data block size:        4096
+Hash block size:        4096
+Hash algorithm:         sha256
+Salt:                   ded94aa063f4d364ee00b87dd2aa5f9e747aee16fef260da4c4957acdab5717c
+Root hash:              cc5292832e2670a2bf10e5ef114faa43dacc5fc215525294838af435da59afd7
+# Releasing crypt device hash_partition.img context.
+# Releasing device-mapper backend.
+Command successful.
+
+# add a 512-byte header
+python -c "open('header','w').write('3'*512)"
+cat header data_partition.img > data_with_header.img
+
+# Get free loop slot
+LOOPDEV=$(sudo losetup -f)
+sudo losetup --offset 512 $LOOPDEV data_with_header.img
+
+sudo veritysetup open $LOOPDEV verity-test hash_partition.img cc5292832e2670a2bf10e5ef114faa43dacc5fc215525294838af435da59afd7
+
+sudo mount /dev/mapper/verity-test mnt
+mount: .../mnt: WARNING: source write-protected, mounted read-only.
+
+sudo umount mnt
+sudo veritysetup close verity-test
+sudo losetup --detach $LOOPDEV
