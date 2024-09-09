@@ -1,6 +1,7 @@
-
-
 import sys
 import binascii
 
-print binascii.b2a_hex(sys.argv[1])
+data = bytes(sys.argv[1], 'utf-8')
+data_hex = binascii.hexlify(data)
+print('hexlify:', data_hex) # same as hexlify
+print('unhexlify:', binascii.unhexlify(data_hex))
