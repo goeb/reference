@@ -1,0 +1,29 @@
+import cryptography.x509
+import cryptography.hazmat.backends
+
+# Generated with: openssl req -noenc -new -x509 -keyout my.key -out my.cert -set_serial 1234567890
+pem_data = b"""
+-----BEGIN CERTIFICATE-----
+MIIDWzCCAkOgAwIBAgIESZYC0jANBgkqhkiG9w0BAQsFADBFMQswCQYDVQQGEwJB
+VTETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0
+cyBQdHkgTHRkMB4XDTI0MDkwOTIwMjgwMloXDTI0MTAwOTIwMjgwMlowRTELMAkG
+A1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0
+IFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+ANl82XM9b61xy0yk9d3Vn2lF+IYyPLkWu43V642ObX8BtuNHMJl/3di6nRBh5yEH
+9Qb7csHIfsScf8c8J7enx2mgwXiM9A7napWmRK0923CscVZGUU3Af2Q/dYg1idxJ
+KrZUayAIOxyv8Wc50FxtnOtrv6/AesrUcDwxHVnUBdoT2SUW6NENONTK4L3Xru9G
+IM/r8ebQygs/0wzb5+kpxl9Gno04zDwrSEMpNgksxVXqcfZwJ2Ze5xIuCEXuhWe6
+CXYaQ8c+Shba15avCV5a25COJmO59PFrcStZb+lPC85amkBRyHryJ0kDP6D/ziao
+mqkx/yvPCaI1GBvkx2WDQwECAwEAAaNTMFEwHQYDVR0OBBYEFDZzfg1PW47fgk4/
+a7pSbz90pkQhMB8GA1UdIwQYMBaAFDZzfg1PW47fgk4/a7pSbz90pkQhMA8GA1Ud
+EwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAAoc4OqOUEBKSTbNdVAqpX/J
+kdaO4McLlJMdtwJGA9RBNQLbfop2LiF1ro2AODyqv0xKMh9NlvPdVWqxkc9fEXmh
+rDU6/69j3o2q4IPBr8hS0qf3x851tCGALAyrM3drXvTFza5M9659thPUByLratno
+mBwWV96o5Ou/ITaeLWuH86gsyXkVMpZNNu/DS4HeBKCo83X/PdcRfyt71cGpAh6h
+MuOWrPsW7T008RE89aaoyUiEylwdqSmp6BklXtU4kb/pfpLwAJvDr5v/47suagjN
+Rfc93mjEINNPXrdpulZXbPBaWa9BDSQuLqLTWyVPr/FcOw9sYxmTdNeACH7RGNk=
+-----END CERTIFICATE-----
+"""
+cert = cryptography.x509.load_pem_x509_certificate(pem_data, cryptography.hazmat.backends.default_backend())
+print("serial_number=%s" % cert.serial_number)
+
