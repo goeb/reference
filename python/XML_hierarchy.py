@@ -12,7 +12,7 @@ def start_element(name, attrs):
     global level, current_hierarchy
     level = level + 1
     if level > len(current_hierarchy) :
-        print "error: too many levels (" + str(level) + ")"
+        print("error: too many levels (" + str(level) + ")")
         sys.exit(1)
 
     # zero all sub-levels
@@ -22,7 +22,7 @@ def start_element(name, attrs):
     # increase current level
     current_hierarchy[level-1] = current_hierarchy[level-1] + 1
 
-    print str_hierarchy(), name
+    print(str_hierarchy(), name)
 
 def end_element(name):
     global level
@@ -37,7 +37,7 @@ p.StartElementHandler = start_element
 p.EndElementHandler = end_element
 p.CharacterDataHandler = char_data
 
-f=open("t.xml")
+f=open("t.xml", "rb")
 level = 0
 current_hierarchy = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ] # 16 levels
 
