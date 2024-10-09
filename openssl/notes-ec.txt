@@ -1,0 +1,57 @@
+
+
+# List EC curves
+$ openssl ecparam -list_curves
+  secp112r1 : SECG/WTLS curve over a 112 bit prime field
+  secp112r2 : SECG curve over a 112 bit prime field
+  secp128r1 : SECG curve over a 128 bit prime field
+...
+
+
+# Generate a private key for a curve
+$ openssl ecparam -name prime256v1 -genkey -noout -out key-ec-prime256v1-priv.pem
+
+# Get corresponding public key
+$ openssl ec -in key-ec-prime256v1-priv.pem -pubout -out key-ec-prime256v1-pub.pem
+
+# Inspect keys
+
+$ openssl ec -in key-ec-prime256v1-priv.pem -text
+read EC key
+Private-Key: (256 bit)
+priv:
+    24:76:e7:19:ec:14:e5:7e:68:85:30:bb:3d:5c:99:
+    a0:db:b4:3b:a2:80:09:40:e3:c3:98:f7:33:2e:a5:
+    63:bd
+pub:
+    04:4d:aa:43:34:53:a0:8c:ca:b8:66:22:17:12:b7:
+    50:15:ce:ea:13:54:78:5b:ac:23:16:30:ec:e2:c6:
+    44:ab:6c:16:ed:9d:f9:0d:4f:a6:15:cf:01:74:8d:
+    ad:52:a8:61:94:dc:45:49:9d:bd:eb:73:24:d1:dc:
+    a6:92:a2:17:67
+ASN1 OID: prime256v1
+NIST CURVE: P-256
+-----BEGIN EC PRIVATE KEY-----
+MHcCAQEEICR25xnsFOV+aIUwuz1cmaDbtDuigAlA48OY9zMupWO9oAoGCCqGSM49
+AwEHoUQDQgAETapDNFOgjMq4ZiIXErdQFc7qE1R4W6wjFjDs4sZEq2wW7Z35DU+m
+Fc8BdI2tUqhhlNxFSZ2963Mk0dymkqIXZw==
+-----END EC PRIVATE KEY-----
+
+$ openssl ec -pubin -in key-ec-prime256v1-pub.pem -text
+read EC key
+Public-Key: (256 bit)
+pub:
+    04:4d:aa:43:34:53:a0:8c:ca:b8:66:22:17:12:b7:
+    50:15:ce:ea:13:54:78:5b:ac:23:16:30:ec:e2:c6:
+    44:ab:6c:16:ed:9d:f9:0d:4f:a6:15:cf:01:74:8d:
+    ad:52:a8:61:94:dc:45:49:9d:bd:eb:73:24:d1:dc:
+    a6:92:a2:17:67
+ASN1 OID: prime256v1
+NIST CURVE: P-256
+writing EC key
+-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAETapDNFOgjMq4ZiIXErdQFc7qE1R4
+W6wjFjDs4sZEq2wW7Z35DU+mFc8BdI2tUqhhlNxFSZ2963Mk0dymkqIXZw==
+-----END PUBLIC KEY-----
+
+
