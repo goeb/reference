@@ -20,3 +20,12 @@ Verified OK
 
 # clean the run.sh
 mv plain run.sh
+
+-------------
+
+Generate a key and self-signed certificate for test only:
+
+openssl req -noenc -new -x509 -keyout my.key -out my.cert
+
+
+

@@ -15,3 +15,10 @@ python() {
     bb.warn("X=%s" % (d.getVar('X')))
 }
 
+python do_xx() {
+    bb.warn("do_xx")
+}
+
+addtask do_xx before do_build
+do_xx[vardeps] = "SOME_PARAMETER_X"
+
