@@ -1,0 +1,1 @@
+option('CONF_PATH', type : 'string', value : '/etc/example1.conf', description : 'Path to the configuration file')
