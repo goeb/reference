@@ -1,6 +1,6 @@
 /*
  * Compile with:
- * gcc gdbus-example-server.c $(pkg-config --cflags --libs dbus-1) $(pkg-config --cflags --libs gio-2.0) $(pkg-config --cflags --libs gio-unix-2.0)
+ * gcc gdbus-example-server.c $(pkg-config --cflags --libs gio-2.0) $(pkg-config --cflags --libs gio-unix-2.0)
  *
  * Example from:
  * https://gitlab.gnome.org/GNOME/glib/-/blob/HEAD/gio/tests/gdbus-example-server.c
