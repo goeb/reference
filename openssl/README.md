@@ -39,13 +39,34 @@ openssl ec -in key-ec-prime256v1-priv.pem -pubout -out key-ec-prime256v1-pub.pem
 ```
 echo hello | openssl pkeyutl -sign \
                              -inkey key-ec-prime256v1-priv.pem \
+                             -rawin \
+                             -digest sha256 \
            > hello-ec-prime256v1.sig
+```
+or (equivalent)
+```
+echo hello | openssl dgst -sign key-ec-prime256v1-priv.pem -sha256 > hello-ec-prime256v1.sig
 ```
 
 - Verify `"hello\n"`
 ```
 echo hello | openssl pkeyutl -verify \
                              -inkey key-ec-prime256v1-pub.pem -pubin \
+                             -rawin \
+                             -digest sha256 \
                              -sigfile hello-ec-prime256v1.sig
 Signature Verified Successfully
+```
+or (equivalent):
+```
+echo hello | openssl dgst -verify key-ec-prime256v1-pub.pem -sha256 -signature hello-ec-prime256v1.sig
+Verified OK
+```
+
+## Generate certificates:
+
+Generate a self-signed certificate:
+
+```
+openssl req -x509 -key key-ec-prime256v1-priv.pem -out key-ec-prime256v1-cert.pem -subj "/CN=key-ec-prime256v1/" -days 3650
 ```
