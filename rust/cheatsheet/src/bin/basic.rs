@@ -1,5 +1,9 @@
+// cargo run
+//
 fn main() {
     basic_types();
+    test_match();
+    test_vector();
 }
 
 fn basic_types() {
@@ -44,4 +48,48 @@ fn basic_types() {
         "Charles".to_string(),
     ];
     println!("slice_names={:?}", slice_names);
+}
+
+fn test_match() {
+    let dice_roll = 9;
+    match dice_roll {
+        3 => println!("test_match: 3"),
+        other => println!("test_match: {}", other),
+        _ => (), // warning: unreachable pattern
+    }
+
+    let config_max = Some(String::from("z123"));
+    if let Some(max) = config_max {
+        println!("test_match: max={max}");
+    }
+    let Some(x) = Some(3) else {
+        println!("test_match: else");
+        return;
+    };
+    println!("test_match: x={x}");
+}
+
+fn test_vector() {
+    let mut v = vec![1, 2, 3, 4, 5];
+    println!("v={v:?}");
+
+    let third: &i32 = &v[2];
+    println!("third={third}");
+
+    let third: Option<&i32> = v.get(2);
+    println!("third={:?}", v.get(2));
+    match third {
+        Some(third) => println!("third={third}"),
+        None => println!("There is no third element."),
+    }
+
+    let mut j = 0;
+    for i in &v {
+        println!("v[{j}]={i}");
+        j += 1;
+    }
+    for i in &mut v {
+        *i = 2 * (*i);
+    }
+    println!("v={v:?}");
 }
