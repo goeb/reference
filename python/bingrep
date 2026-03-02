@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+
+import binascii
+import os
+import sys
+
+__doc__ = """
+Usage: bingrep FILE-PATTERN FILE-TO-SEARCH ...
+       bingrep --hex PATTERN FILE-TO-SEARCH ...
+
+Look if FILE-PATTERN is contained in FILE-TO-SEARCH.
+"""
+
+if len(sys.argv) == 1:
+    print(__doc__)
+    sys.exit(1)
+
+sys.argv.pop(0)
+
+arg = sys.argv.pop(0)
+if arg == '--hex':
+    pattern = binascii.unhexlify(sys.argv.pop(0).replace(' ', ''))
+else:
+    pattern = b''
+    file_pattern_name = arg
+    with open(file_pattern_name, 'rb') as file_pattern:
+        pattern = file_pattern.read()
+
+exit_code = 1
+
+while len(sys.argv):
+    file_to_search_name = sys.argv.pop(0)
+
+    if os.path.isdir(file_to_search_name):
+        print("%s is a directory" % file_to_search_name)
+        continue
+
+    with open(file_to_search_name, 'rb') as file_to_search:
+        contents = file_to_search.read()
+
+    offset = contents.find(pattern)
+    if offset >= 0:
+        print("%s: contains at offset %s, size %s" % (file_to_search_name, offset, len(pattern)))
+        exit_code = 0
+    #else:
+    #    print("%s: NOT contains" % file_to_search_name)
+
+sys.exit(exit_code)
