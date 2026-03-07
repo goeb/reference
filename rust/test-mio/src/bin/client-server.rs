@@ -53,9 +53,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     // Accept the connection and drop it immediately. This will
                     // close the socket and notify the client of the EOF.
                     println!("SERVER: accept");
-                    let mut connection: std::io::Result<(TcpStream, std::net::SocketAddr)> = server.accept();
+                    let connection: std::io::Result<(TcpStream, std::net::SocketAddr)> = server.accept();
                     match connection {
-                        Ok((mut conn, addr)) => {
+                        Ok((mut conn, _addr)) => {
                             conn.write(b"hello");
                         },
                         Err(err) => println!("Err: {err}")
