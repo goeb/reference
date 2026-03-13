@@ -1,9 +1,11 @@
+use std::any::Any;
 // cargo run
 //
 fn main() {
     basic_types();
     test_match();
     test_vector();
+    test_references();
 }
 
 fn basic_types() {
@@ -92,4 +94,20 @@ fn test_vector() {
         *i = 2 * (*i);
     }
     println!("v={v:?}");
+}
+
+fn test_references() {
+    let mut s = String::from("hello");
+
+    let slice: &str = &s[0..2];
+    println!("test_references: slice={slice}");
+    let r1 = &mut s;
+    println!("test_references: r1={r1}");
+    change(&mut s);
+    println!("test_references: s={s}");
+    println!("test_references: s.type_id()={:?}", s.type_id());
+}
+
+fn change(some_string: &mut String) {
+    some_string.push_str(", world");
 }
