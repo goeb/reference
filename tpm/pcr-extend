@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+
+"""Usage: pcr-extend SHA256 ...
+
+Example:
+pcr-extend 0000000000000000000000000000000000000000000000000000000000000000 \\
+           df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119
+3d458cfe55cc03ea1f443f1562beec8df51c75e14a9fcf9a7234a13f198e7969
+"""
+
+import hashlib
+import sys
+
+if len(sys.argv) <= 1:
+    print(__doc__)
+    sys.exit(1)
+
+sys.argv.pop(0)  # skip program name
+
+result = None
+for arg in sys.argv:
+	hash = bytearray.fromhex(arg)
+	if result is None:
+		result = hash   # initialize with the first item
+	else:
+		result += hash  # concatenate
+		result = bytearray(hashlib.sha256(result).digest())
+	
+print(result.hex())
