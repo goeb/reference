@@ -87,7 +87,6 @@ WARN: Reading full size of the NV index
 hello world
 ```
 
-
 ## Alter PCR 16 and lose access to the NV index
 
 ```
@@ -138,3 +137,34 @@ ERROR: Failed to read the public part of NV index 0x1500016
 ERROR: Unable to run tpm2_nvreadpublic
 ```
 
+
+## Seal a NV index using a password
+
+Set a password on a Non-Volatile (NV) index:
+```
+sudo tpm2_nvdefine 0x1500016 --hierarchy o --size 32 --index-auth hello
+```
+
+Write:
+```
+echo "hello world" | sudo tpm2_nvwrite 0x1500016 --hierarchy 0x1500016 --input - --auth hello
+```
+
+Read:
+```
+sudo tpm2_nvread 0x1500016 --hierarchy 0x1500016 --auth hello
+hello world
+```
+
+Attempt to read without password:
+```
+sudo tpm2_nvread 0x1500016 --hierarchy 0x1500016
+WARN: Reading full size of the NV index
+WARNING:esys:src/tss2-esys/api/Esys_NV_Read.c:315:Esys_NV_Read_Finish() Received TPM Error
+ERROR:esys:src/tss2-esys/api/Esys_NV_Read.c:105:Esys_NV_Read() Esys Finish ErrorCode
+(0x0000098e)
+ERROR: Esys_NV_Read(0x98E) - tpm:session(1):the authorization HMAC check failed and DA
+counter incremented
+ERROR: Failed to read NVRAM area at index 0x1500016
+ERROR: Unable to run tpm2_nvread
+```
