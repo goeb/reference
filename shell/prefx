@@ -1,0 +1,37 @@
+#!/bin/bash
+
+usage() {
+	echo "Usage : prefx PREFIX FILE [ FILE ... ]"
+	echo
+	echo "Rename files with a prefix."
+	echo
+	echo "If PREFIX is:"
+   	echo "  -m, --modification-time"
+	echo "      The prefix is taken from the modification time of the files (format YYYYmmdd)."
+	echo "      This relies on versions of 'date' that have the option '-r', '--reference'."
+	echo
+	echo "Examples:"
+	echo "  prefx A some_file"
+	echo "  Renaming some_file -> A_some_file"
+	echo "  prefx -m A_some_file"
+	echo "  Renaming A_some_file -> 20260909_A_some_file"
+	exit 1
+}
+
+if [ $# -lt 2 ]; then
+	usage
+fi
+
+prefix=$1
+shift
+
+for file in $*
+do
+	case "$prefix" in
+		-m|--modification-time) prfx=$(date +%Y%m%d --reference "$file");;
+		-*) usage;;
+		*) prfx="$prefix";;
+	esac
+	echo "Renaming $file -> ${prfx}_${file}"
+	mv -i "$file" "${prfx}_${file}"
+done
